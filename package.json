@@ -1,0 +1,70 @@
+{
+    "name": "iobroker.atemmini",
+    "version": "0.2.0",
+    "description": "Control Blackmagic ATEM video mixers (Mini, Mini Pro, Television Studio, Constellation, and more)",
+    "author": {
+        "name": "Alan Paris"
+    },
+    "homepage": "https://github.com/alanparis/ioBroker.atemmini",
+    "license": "MIT",
+    "keywords": [
+        "ioBroker",
+        "ATEM",
+        "Blackmagic",
+        "video mixer",
+        "streaming"
+    ],
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/alanparis/ioBroker.atemmini.git"
+    },
+    "engines": {
+        "node": ">=18.0.0"
+    },
+    "main": "build/main.js",
+    "files": [
+        "admin/",
+        "build/",
+        "io-package.json",
+        "LICENSE"
+    ],
+    "scripts": {
+        "prebuild": "rimraf build",
+        "build": "tsc -p tsconfig.build.json",
+        "watch": "tsc -p tsconfig.build.json --watch",
+        "test:ts": "mocha --config test/mocharc.custom.json src/**/*.test.ts",
+        "test:package": "mocha test/package --exit",
+        "test:integration": "mocha test/integration --exit",
+        "test": "npm run test:ts && npm run test:package",
+        "check": "tsc --noEmit",
+        "lint": "eslint --ext .ts src/",
+        "translate": "translate-adapter",
+        "release": "release-script"
+    },
+    "devDependencies": {
+        "@iobroker/adapter-dev": "^1.3.0",
+        "@iobroker/testing": "^5.0.0",
+        "@types/chai": "^5.0.0",
+        "@types/mocha": "^10.0.10",
+        "@types/node": "^22.10.0",
+        "@types/proxyquire": "^1.3.31",
+        "@types/sinon": "^17.0.3",
+        "@types/sinon-chai": "^4.0.0",
+        "@typescript-eslint/eslint-plugin": "^8.0.0",
+        "@typescript-eslint/parser": "^8.0.0",
+        "chai": "^5.1.2",
+        "eslint": "^9.0.0",
+        "mocha": "^11.0.1",
+        "proxyquire": "^2.1.3",
+        "rimraf": "^6.0.1",
+        "sinon": "^19.0.0",
+        "sinon-chai": "^4.0.0",
+        "source-map-support": "^0.5.21",
+        "ts-node": "^10.9.2",
+        "typescript": "~5.7.0"
+    },
+    "dependencies": {
+        "@iobroker/adapter-core": "^3.2.3",
+        "atem-connection": "^3.8.0"
+    }
+}

@@ -1,0 +1,93 @@
+{
+    "common": {
+        "name": "atemmini",
+        "version": "0.2.0",
+        "news": {
+            "0.2.0": {
+                "en": "Added model selection, transition rates, auxiliary outputs, tally, audio per-input, color generators",
+                "de": "Modellauswahl, Übergangsraten, Aux-Ausgänge, Tally, Audio pro Eingang, Farbgeneratoren hinzugefügt"
+            },
+            "0.1.0": {
+                "en": "Initial release",
+                "de": "Erstveröffentlichung"
+            }
+        },
+        "title": "Blackmagic ATEM",
+        "titleLang": {
+            "en": "Blackmagic ATEM Video Mixer",
+            "de": "Blackmagic ATEM Videomixer"
+        },
+        "desc": {
+            "en": "Control Blackmagic ATEM video mixers (Mini, Mini Pro, Television Studio, and more)",
+            "de": "Steuerung von Blackmagic ATEM Videomixern (Mini, Mini Pro, Television Studio und mehr)"
+        },
+        "authors": [
+            "Alan Paris"
+        ],
+        "keywords": [
+            "atem",
+            "blackmagic",
+            "video",
+            "mixer",
+            "streaming",
+            "broadcast"
+        ],
+        "license": "MIT",
+        "platform": "Javascript/Node.js",
+        "main": "build/main.js",
+        "icon": "atemmini.png",
+        "enabled": true,
+        "extIcon": "https://raw.githubusercontent.com/alanparis/ioBroker.atemmini/main/admin/atemmini.png",
+        "readme": "https://github.com/alanparis/ioBroker.atemmini/blob/main/README.md",
+        "loglevel": "info",
+        "tier": 3,
+        "mode": "daemon",
+        "type": "multimedia",
+        "compact": true,
+        "connectionType": "local",
+        "dataSource": "push",
+        "adminUI": {
+            "config": "json"
+        },
+        "dependencies": [
+            {
+                "js-controller": ">=5.0.19"
+            }
+        ],
+        "globalDependencies": [
+            {
+                "admin": ">=6.0.0"
+            }
+        ]
+    },
+    "native": {
+        "host": "192.168.1.100",
+        "model": "auto",
+        "reconnectInterval": 5000,
+        "pollInterval": 1000
+    },
+    "objects": [],
+    "instanceObjects": [
+        {
+            "_id": "info",
+            "type": "channel",
+            "common": {
+                "name": "Information"
+            },
+            "native": {}
+        },
+        {
+            "_id": "info.connection",
+            "type": "state",
+            "common": {
+                "role": "indicator.connected",
+                "name": "Device connection status",
+                "type": "boolean",
+                "read": true,
+                "write": false,
+                "def": false
+            },
+            "native": {}
+        }
+    ]
+}

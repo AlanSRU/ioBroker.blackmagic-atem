@@ -1,0 +1,79 @@
+{
+    "i18n": true,
+    "type": "panel",
+    "items": {
+        "_connectionHeader": {
+            "type": "header",
+            "text": "Connection Settings",
+            "size": 2
+        },
+        "host": {
+            "type": "text",
+            "label": "ATEM IP Address",
+            "sm": 12,
+            "md": 6,
+            "lg": 4,
+            "tooltip": "IP address of the ATEM mixer",
+            "placeholder": "192.168.1.100"
+        },
+        "model": {
+            "type": "select",
+            "label": "ATEM Model",
+            "sm": 12,
+            "md": 6,
+            "lg": 4,
+            "options": [
+                { "label": "Auto Detect", "value": "auto" },
+                { "label": "ATEM Mini", "value": "mini" },
+                { "label": "ATEM Mini Pro", "value": "miniPro" },
+                { "label": "ATEM Mini Pro ISO", "value": "miniProISO" },
+                { "label": "ATEM Mini Extreme", "value": "miniExtreme" },
+                { "label": "ATEM Mini Extreme ISO", "value": "miniExtremeISO" },
+                { "label": "ATEM Mini Extreme ISO G2", "value": "miniExtremeISOG2" },
+                { "label": "ATEM SDI", "value": "sdi" },
+                { "label": "ATEM SDI Pro ISO", "value": "sdiProISO" },
+                { "label": "ATEM SDI Extreme ISO", "value": "sdiExtremeISO" },
+                { "label": "ATEM Television Studio HD", "value": "tvStudioHD" },
+                { "label": "ATEM Television Studio HD8", "value": "tvStudioHD8" },
+                { "label": "ATEM Television Studio HD8 ISO", "value": "tvStudioHD8ISO" },
+                { "label": "ATEM Television Studio 4K8", "value": "tvStudio4K8" },
+                { "label": "ATEM 1 M/E Constellation HD", "value": "1meConstellationHD" },
+                { "label": "ATEM 2 M/E Constellation HD", "value": "2meConstellationHD" },
+                { "label": "ATEM 4 M/E Constellation HD", "value": "4meConstellationHD" },
+                { "label": "ATEM 1 M/E Constellation 4K", "value": "1meConstellation4K" },
+                { "label": "ATEM 2 M/E Constellation 4K", "value": "2meConstellation4K" },
+                { "label": "ATEM 4 M/E Constellation 4K", "value": "4meConstellation4K" },
+                { "label": "ATEM 4 M/E Constellation 4K Plus", "value": "4meConstellation4KPlus" }
+            ],
+            "default": "auto",
+            "tooltip": "Select your ATEM model or use Auto Detect"
+        },
+        "_advancedHeader": {
+            "type": "header",
+            "text": "Advanced Settings",
+            "size": 2
+        },
+        "reconnectInterval": {
+            "type": "number",
+            "label": "Reconnect Interval (ms)",
+            "sm": 12,
+            "md": 6,
+            "lg": 4,
+            "min": 1000,
+            "max": 60000,
+            "default": 5000,
+            "tooltip": "Time to wait before reconnecting after connection loss"
+        },
+        "pollInterval": {
+            "type": "number",
+            "label": "Poll Interval (ms)",
+            "sm": 12,
+            "md": 6,
+            "lg": 4,
+            "min": 100,
+            "max": 10000,
+            "default": 1000,
+            "tooltip": "Interval for polling audio levels and other dynamic data"
+        }
+    }
+}
