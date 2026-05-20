@@ -1,8 +1,21 @@
 {
   "common": {
     "name": "blackmagic-atem",
-    "version": "0.2.1",
+    "version": "0.2.2",
     "news": {
+      "0.2.2": {
+        "en": "Switched CI publish to npm trusted publishing (OIDC)",
+        "de": "Geschaltet CI veröffentlichen zu npm Trusted Publishing (OIDC)",
+        "ru": "Switched CI доверенная публикация npm (OIDC)",
+        "pt": "O CI alterado publica para publicação confiável do npm (OIDC)",
+        "nl": "Geswitched CI publish to npm trusted publishing (OIDC)",
+        "fr": "L'IC a changé de publication pour npm en publication fiable (OIDC)",
+        "it": "Switched CI pubblicare a npm editoria fidata (OIDC)",
+        "es": "Switched CI publica a npm de confianza publicación (OIDC)",
+        "pl": "Przełączona publikacja informacyjna do zaufanej publikacji npm (OIDC)",
+        "uk": "Вимкнено CI публікувати на npm перевірене видання (OIDC)",
+        "zh-cn": "切换 CI 发布到 npm 信任的出版 (OIDC)"
+      },
       "0.2.1": {
         "en": "Initial publication to npm registry",
         "de": "Erstveröffentlichung im Register npm",
