@@ -1,34 +1,20 @@
-# Dependency directories
 node_modules/
-
-# Build output
 build/
-
-# IDE
+dist/
 .idea/
-.vscode/
+.vscode/*
+!.vscode/settings.json
 *.swp
 *.swo
-
-# OS files
 .DS_Store
 Thumbs.db
-
-# Logs
 *.log
 npm-debug.log*
-
-# Test coverage
 coverage/
 .nyc_output/
-
-# Environment files
 .env
-.env.local
-
-# npm
-package-lock.json
+.env.*.local
+iobroker-data/
+.commitinfo
 *.tgz
-
-# ioBroker
 iob_npm.done

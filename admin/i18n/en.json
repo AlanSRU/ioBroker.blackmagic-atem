@@ -1,0 +1,13 @@
+{
+    "Connection Settings": "Connection Settings",
+    "ATEM IP Address": "ATEM IP Address",
+    "IP address of the ATEM mixer": "IP address of the ATEM mixer",
+    "ATEM Model": "ATEM Model",
+    "Select your ATEM model or use Auto Detect": "Select your ATEM model or use Auto Detect",
+    "Auto Detect": "Auto Detect",
+    "Advanced Settings": "Advanced Settings",
+    "Reconnect Interval (ms)": "Reconnect Interval (ms)",
+    "Time to wait before reconnecting after connection loss": "Time to wait before reconnecting after connection loss",
+    "Poll Interval (ms)": "Poll Interval (ms)",
+    "Interval for polling audio levels and other dynamic data": "Interval for polling audio levels and other dynamic data"
+}

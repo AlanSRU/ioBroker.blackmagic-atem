@@ -4,11 +4,12 @@
  * Supports all ATEM models including Mini, Mini Pro, Television Studio, Constellation, and more
  */
 
-import * as utils from "@iobroker/adapter-core";
-import { Atem, AtemConnectionStatus } from "atem-connection";
+import * as utils from '@iobroker/adapter-core';
+import { Atem, AtemConnectionStatus } from 'atem-connection';
 
 // Adapter configuration interface
 declare global {
+    // eslint-disable-next-line @typescript-eslint/no-namespace
     namespace ioBroker {
         interface AdapterConfig {
             host: string;
@@ -26,6 +27,8 @@ interface ModelCapabilities {
     downstreamKeyers: number;
     auxOutputs: number;
     mediaPlayers: number;
+    mediaStills: number;
+    mediaClips: number;
     colorGenerators: number;
     superSources: number;
     hasStreaming: boolean;
@@ -41,45 +44,409 @@ interface ModelCapabilities {
 //          https://www.blackmagicdesign.com/products/atemtelevisionstudio/techspecs
 //          https://www.blackmagicdesign.com/products/atemsdi/techspecs
 const MODEL_CAPABILITIES: Record<string, ModelCapabilities> = {
-    // ATEM Mini Series
-    mini: { mixEffectBlocks: 1, upstreamKeyers: 1, downstreamKeyers: 1, auxOutputs: 1, mediaPlayers: 1, colorGenerators: 2, superSources: 0, hasStreaming: false, hasRecording: false, hasMultiview: false, hasFairlightAudio: false },
-    miniPro: { mixEffectBlocks: 1, upstreamKeyers: 1, downstreamKeyers: 1, auxOutputs: 1, mediaPlayers: 1, colorGenerators: 2, superSources: 0, hasStreaming: true, hasRecording: true, hasMultiview: true, hasFairlightAudio: true },
-    miniProISO: { mixEffectBlocks: 1, upstreamKeyers: 1, downstreamKeyers: 1, auxOutputs: 1, mediaPlayers: 1, colorGenerators: 2, superSources: 0, hasStreaming: true, hasRecording: true, hasMultiview: true, hasFairlightAudio: true },
-    miniExtreme: { mixEffectBlocks: 1, upstreamKeyers: 4, downstreamKeyers: 2, auxOutputs: 2, mediaPlayers: 2, colorGenerators: 2, superSources: 1, hasStreaming: true, hasRecording: true, hasMultiview: true, hasFairlightAudio: true },
-    miniExtremeISO: { mixEffectBlocks: 1, upstreamKeyers: 4, downstreamKeyers: 2, auxOutputs: 2, mediaPlayers: 2, colorGenerators: 2, superSources: 1, hasStreaming: true, hasRecording: true, hasMultiview: true, hasFairlightAudio: true },
-    miniExtremeISOG2: { mixEffectBlocks: 1, upstreamKeyers: 4, downstreamKeyers: 2, auxOutputs: 4, mediaPlayers: 2, colorGenerators: 2, superSources: 1, hasStreaming: true, hasRecording: true, hasMultiview: true, hasFairlightAudio: true },
+    // ATEM Mini Series (20 stills, 0 clips)
+    mini: {
+        mixEffectBlocks: 1,
+        upstreamKeyers: 1,
+        downstreamKeyers: 1,
+        auxOutputs: 1,
+        mediaPlayers: 1,
+        mediaStills: 20,
+        mediaClips: 0,
+        colorGenerators: 2,
+        superSources: 0,
+        hasStreaming: false,
+        hasRecording: false,
+        hasMultiview: false,
+        hasFairlightAudio: false,
+    },
+    miniPro: {
+        mixEffectBlocks: 1,
+        upstreamKeyers: 1,
+        downstreamKeyers: 1,
+        auxOutputs: 1,
+        mediaPlayers: 1,
+        mediaStills: 20,
+        mediaClips: 0,
+        colorGenerators: 2,
+        superSources: 0,
+        hasStreaming: true,
+        hasRecording: true,
+        hasMultiview: true,
+        hasFairlightAudio: true,
+    },
+    miniProISO: {
+        mixEffectBlocks: 1,
+        upstreamKeyers: 1,
+        downstreamKeyers: 1,
+        auxOutputs: 1,
+        mediaPlayers: 1,
+        mediaStills: 20,
+        mediaClips: 0,
+        colorGenerators: 2,
+        superSources: 0,
+        hasStreaming: true,
+        hasRecording: true,
+        hasMultiview: true,
+        hasFairlightAudio: true,
+    },
+    miniExtreme: {
+        mixEffectBlocks: 1,
+        upstreamKeyers: 4,
+        downstreamKeyers: 2,
+        auxOutputs: 2,
+        mediaPlayers: 2,
+        mediaStills: 20,
+        mediaClips: 0,
+        colorGenerators: 2,
+        superSources: 1,
+        hasStreaming: true,
+        hasRecording: true,
+        hasMultiview: true,
+        hasFairlightAudio: true,
+    },
+    miniExtremeISO: {
+        mixEffectBlocks: 1,
+        upstreamKeyers: 4,
+        downstreamKeyers: 2,
+        auxOutputs: 2,
+        mediaPlayers: 2,
+        mediaStills: 20,
+        mediaClips: 0,
+        colorGenerators: 2,
+        superSources: 1,
+        hasStreaming: true,
+        hasRecording: true,
+        hasMultiview: true,
+        hasFairlightAudio: true,
+    },
+    miniExtremeISOG2: {
+        mixEffectBlocks: 1,
+        upstreamKeyers: 4,
+        downstreamKeyers: 2,
+        auxOutputs: 4,
+        mediaPlayers: 2,
+        mediaStills: 20,
+        mediaClips: 0,
+        colorGenerators: 2,
+        superSources: 1,
+        hasStreaming: true,
+        hasRecording: true,
+        hasMultiview: true,
+        hasFairlightAudio: true,
+    },
 
-    // ATEM SDI Series
-    sdi: { mixEffectBlocks: 1, upstreamKeyers: 1, downstreamKeyers: 1, auxOutputs: 1, mediaPlayers: 1, colorGenerators: 2, superSources: 0, hasStreaming: false, hasRecording: false, hasMultiview: false, hasFairlightAudio: false },
-    sdiProISO: { mixEffectBlocks: 1, upstreamKeyers: 1, downstreamKeyers: 1, auxOutputs: 1, mediaPlayers: 1, colorGenerators: 2, superSources: 0, hasStreaming: true, hasRecording: true, hasMultiview: true, hasFairlightAudio: true },
-    sdiExtremeISO: { mixEffectBlocks: 1, upstreamKeyers: 4, downstreamKeyers: 2, auxOutputs: 2, mediaPlayers: 2, colorGenerators: 2, superSources: 1, hasStreaming: true, hasRecording: true, hasMultiview: true, hasFairlightAudio: true },
+    // ATEM SDI Series (20 stills, 0 clips)
+    sdi: {
+        mixEffectBlocks: 1,
+        upstreamKeyers: 1,
+        downstreamKeyers: 1,
+        auxOutputs: 1,
+        mediaPlayers: 1,
+        mediaStills: 20,
+        mediaClips: 0,
+        colorGenerators: 2,
+        superSources: 0,
+        hasStreaming: false,
+        hasRecording: false,
+        hasMultiview: false,
+        hasFairlightAudio: false,
+    },
+    sdiProISO: {
+        mixEffectBlocks: 1,
+        upstreamKeyers: 1,
+        downstreamKeyers: 1,
+        auxOutputs: 1,
+        mediaPlayers: 1,
+        mediaStills: 20,
+        mediaClips: 0,
+        colorGenerators: 2,
+        superSources: 0,
+        hasStreaming: true,
+        hasRecording: true,
+        hasMultiview: true,
+        hasFairlightAudio: true,
+    },
+    sdiExtremeISO: {
+        mixEffectBlocks: 1,
+        upstreamKeyers: 4,
+        downstreamKeyers: 2,
+        auxOutputs: 2,
+        mediaPlayers: 2,
+        mediaStills: 20,
+        mediaClips: 0,
+        colorGenerators: 2,
+        superSources: 1,
+        hasStreaming: true,
+        hasRecording: true,
+        hasMultiview: true,
+        hasFairlightAudio: true,
+    },
 
-    // ATEM Television Studio Series
-    tvStudioHD: { mixEffectBlocks: 1, upstreamKeyers: 1, downstreamKeyers: 2, auxOutputs: 1, mediaPlayers: 2, colorGenerators: 2, superSources: 0, hasStreaming: false, hasRecording: false, hasMultiview: true, hasFairlightAudio: false },
-    tvStudioHD8: { mixEffectBlocks: 1, upstreamKeyers: 4, downstreamKeyers: 2, auxOutputs: 2, mediaPlayers: 2, colorGenerators: 2, superSources: 1, hasStreaming: true, hasRecording: false, hasMultiview: true, hasFairlightAudio: true },
-    tvStudioHD8ISO: { mixEffectBlocks: 1, upstreamKeyers: 4, downstreamKeyers: 2, auxOutputs: 2, mediaPlayers: 2, colorGenerators: 2, superSources: 1, hasStreaming: true, hasRecording: true, hasMultiview: true, hasFairlightAudio: true },
-    tvStudio4K8: { mixEffectBlocks: 1, upstreamKeyers: 4, downstreamKeyers: 2, auxOutputs: 10, mediaPlayers: 2, colorGenerators: 2, superSources: 1, hasStreaming: true, hasRecording: true, hasMultiview: true, hasFairlightAudio: true },
+    // ATEM Television Studio Series (32 stills, 2 clips)
+    tvStudioHD: {
+        mixEffectBlocks: 1,
+        upstreamKeyers: 1,
+        downstreamKeyers: 2,
+        auxOutputs: 1,
+        mediaPlayers: 2,
+        mediaStills: 32,
+        mediaClips: 2,
+        colorGenerators: 2,
+        superSources: 0,
+        hasStreaming: false,
+        hasRecording: false,
+        hasMultiview: true,
+        hasFairlightAudio: false,
+    },
+    tvStudioHD8: {
+        mixEffectBlocks: 1,
+        upstreamKeyers: 4,
+        downstreamKeyers: 2,
+        auxOutputs: 2,
+        mediaPlayers: 2,
+        mediaStills: 32,
+        mediaClips: 2,
+        colorGenerators: 2,
+        superSources: 1,
+        hasStreaming: true,
+        hasRecording: false,
+        hasMultiview: true,
+        hasFairlightAudio: true,
+    },
+    tvStudioHD8ISO: {
+        mixEffectBlocks: 1,
+        upstreamKeyers: 4,
+        downstreamKeyers: 2,
+        auxOutputs: 2,
+        mediaPlayers: 2,
+        mediaStills: 32,
+        mediaClips: 2,
+        colorGenerators: 2,
+        superSources: 1,
+        hasStreaming: true,
+        hasRecording: true,
+        hasMultiview: true,
+        hasFairlightAudio: true,
+    },
+    tvStudio4K8: {
+        mixEffectBlocks: 1,
+        upstreamKeyers: 4,
+        downstreamKeyers: 2,
+        auxOutputs: 10,
+        mediaPlayers: 2,
+        mediaStills: 32,
+        mediaClips: 2,
+        colorGenerators: 2,
+        superSources: 1,
+        hasStreaming: true,
+        hasRecording: true,
+        hasMultiview: true,
+        hasFairlightAudio: true,
+    },
 
-    // ATEM Constellation HD Series (per official specs)
-    "1meConstellationHD": { mixEffectBlocks: 1, upstreamKeyers: 4, downstreamKeyers: 1, auxOutputs: 6, mediaPlayers: 2, colorGenerators: 2, superSources: 0, hasStreaming: false, hasRecording: false, hasMultiview: true, hasFairlightAudio: true },
-    "2meConstellationHD": { mixEffectBlocks: 2, upstreamKeyers: 4, downstreamKeyers: 2, auxOutputs: 12, mediaPlayers: 2, colorGenerators: 2, superSources: 1, hasStreaming: false, hasRecording: false, hasMultiview: true, hasFairlightAudio: true },
-    "4meConstellationHD": { mixEffectBlocks: 4, upstreamKeyers: 4, downstreamKeyers: 4, auxOutputs: 24, mediaPlayers: 4, colorGenerators: 2, superSources: 2, hasStreaming: false, hasRecording: false, hasMultiview: true, hasFairlightAudio: true },
+    // ATEM Constellation HD Series (32 stills, 2 clips)
+    '1meConstellationHD': {
+        mixEffectBlocks: 1,
+        upstreamKeyers: 4,
+        downstreamKeyers: 1,
+        auxOutputs: 6,
+        mediaPlayers: 2,
+        mediaStills: 32,
+        mediaClips: 2,
+        colorGenerators: 2,
+        superSources: 0,
+        hasStreaming: false,
+        hasRecording: false,
+        hasMultiview: true,
+        hasFairlightAudio: true,
+    },
+    '2meConstellationHD': {
+        mixEffectBlocks: 2,
+        upstreamKeyers: 4,
+        downstreamKeyers: 2,
+        auxOutputs: 12,
+        mediaPlayers: 2,
+        mediaStills: 32,
+        mediaClips: 2,
+        colorGenerators: 2,
+        superSources: 1,
+        hasStreaming: false,
+        hasRecording: false,
+        hasMultiview: true,
+        hasFairlightAudio: true,
+    },
+    '4meConstellationHD': {
+        mixEffectBlocks: 4,
+        upstreamKeyers: 4,
+        downstreamKeyers: 4,
+        auxOutputs: 24,
+        mediaPlayers: 4,
+        mediaStills: 32,
+        mediaClips: 2,
+        colorGenerators: 2,
+        superSources: 2,
+        hasStreaming: false,
+        hasRecording: false,
+        hasMultiview: true,
+        hasFairlightAudio: true,
+    },
 
-    // ATEM Constellation 4K Series (per official specs)
-    "1meConstellation4K": { mixEffectBlocks: 1, upstreamKeyers: 4, downstreamKeyers: 1, auxOutputs: 6, mediaPlayers: 2, colorGenerators: 2, superSources: 0, hasStreaming: false, hasRecording: false, hasMultiview: true, hasFairlightAudio: true },
-    "2meConstellation4K": { mixEffectBlocks: 2, upstreamKeyers: 4, downstreamKeyers: 2, auxOutputs: 12, mediaPlayers: 2, colorGenerators: 2, superSources: 1, hasStreaming: false, hasRecording: false, hasMultiview: true, hasFairlightAudio: true },
-    "4meConstellation4K": { mixEffectBlocks: 4, upstreamKeyers: 4, downstreamKeyers: 4, auxOutputs: 24, mediaPlayers: 4, colorGenerators: 2, superSources: 2, hasStreaming: false, hasRecording: false, hasMultiview: true, hasFairlightAudio: true },
-    "4meConstellation4KPlus": { mixEffectBlocks: 4, upstreamKeyers: 4, downstreamKeyers: 4, auxOutputs: 48, mediaPlayers: 4, colorGenerators: 2, superSources: 2, hasStreaming: false, hasRecording: false, hasMultiview: true, hasFairlightAudio: true },
+    // ATEM Constellation 4K Series (32 stills, 2 clips)
+    '1meConstellation4K': {
+        mixEffectBlocks: 1,
+        upstreamKeyers: 4,
+        downstreamKeyers: 1,
+        auxOutputs: 6,
+        mediaPlayers: 2,
+        mediaStills: 32,
+        mediaClips: 2,
+        colorGenerators: 2,
+        superSources: 0,
+        hasStreaming: false,
+        hasRecording: false,
+        hasMultiview: true,
+        hasFairlightAudio: true,
+    },
+    '2meConstellation4K': {
+        mixEffectBlocks: 2,
+        upstreamKeyers: 4,
+        downstreamKeyers: 2,
+        auxOutputs: 12,
+        mediaPlayers: 2,
+        mediaStills: 32,
+        mediaClips: 2,
+        colorGenerators: 2,
+        superSources: 1,
+        hasStreaming: false,
+        hasRecording: false,
+        hasMultiview: true,
+        hasFairlightAudio: true,
+    },
+    '4meConstellation4K': {
+        mixEffectBlocks: 4,
+        upstreamKeyers: 4,
+        downstreamKeyers: 4,
+        auxOutputs: 24,
+        mediaPlayers: 4,
+        mediaStills: 32,
+        mediaClips: 2,
+        colorGenerators: 2,
+        superSources: 2,
+        hasStreaming: false,
+        hasRecording: false,
+        hasMultiview: true,
+        hasFairlightAudio: true,
+    },
+    '4meConstellation4KPlus': {
+        mixEffectBlocks: 4,
+        upstreamKeyers: 4,
+        downstreamKeyers: 4,
+        auxOutputs: 48,
+        mediaPlayers: 4,
+        mediaStills: 32,
+        mediaClips: 2,
+        colorGenerators: 2,
+        superSources: 2,
+        hasStreaming: false,
+        hasRecording: false,
+        hasMultiview: true,
+        hasFairlightAudio: true,
+    },
 
-    // Legacy aliases for backwards compatibility
-    "1me4k": { mixEffectBlocks: 1, upstreamKeyers: 4, downstreamKeyers: 1, auxOutputs: 6, mediaPlayers: 2, colorGenerators: 2, superSources: 0, hasStreaming: false, hasRecording: false, hasMultiview: true, hasFairlightAudio: true },
-    "2me4k": { mixEffectBlocks: 2, upstreamKeyers: 4, downstreamKeyers: 2, auxOutputs: 12, mediaPlayers: 2, colorGenerators: 2, superSources: 1, hasStreaming: false, hasRecording: false, hasMultiview: true, hasFairlightAudio: true },
-    "4me4k": { mixEffectBlocks: 4, upstreamKeyers: 4, downstreamKeyers: 4, auxOutputs: 24, mediaPlayers: 4, colorGenerators: 2, superSources: 2, hasStreaming: false, hasRecording: false, hasMultiview: true, hasFairlightAudio: true },
-    constellationHD: { mixEffectBlocks: 4, upstreamKeyers: 4, downstreamKeyers: 4, auxOutputs: 24, mediaPlayers: 4, colorGenerators: 2, superSources: 2, hasStreaming: false, hasRecording: false, hasMultiview: true, hasFairlightAudio: true },
-    constellation4K: { mixEffectBlocks: 4, upstreamKeyers: 4, downstreamKeyers: 4, auxOutputs: 24, mediaPlayers: 4, colorGenerators: 2, superSources: 2, hasStreaming: false, hasRecording: false, hasMultiview: true, hasFairlightAudio: true },
+    // Legacy aliases for backwards compatibility (32 stills, 2 clips)
+    '1me4k': {
+        mixEffectBlocks: 1,
+        upstreamKeyers: 4,
+        downstreamKeyers: 1,
+        auxOutputs: 6,
+        mediaPlayers: 2,
+        mediaStills: 32,
+        mediaClips: 2,
+        colorGenerators: 2,
+        superSources: 0,
+        hasStreaming: false,
+        hasRecording: false,
+        hasMultiview: true,
+        hasFairlightAudio: true,
+    },
+    '2me4k': {
+        mixEffectBlocks: 2,
+        upstreamKeyers: 4,
+        downstreamKeyers: 2,
+        auxOutputs: 12,
+        mediaPlayers: 2,
+        mediaStills: 32,
+        mediaClips: 2,
+        colorGenerators: 2,
+        superSources: 1,
+        hasStreaming: false,
+        hasRecording: false,
+        hasMultiview: true,
+        hasFairlightAudio: true,
+    },
+    '4me4k': {
+        mixEffectBlocks: 4,
+        upstreamKeyers: 4,
+        downstreamKeyers: 4,
+        auxOutputs: 24,
+        mediaPlayers: 4,
+        mediaStills: 32,
+        mediaClips: 2,
+        colorGenerators: 2,
+        superSources: 2,
+        hasStreaming: false,
+        hasRecording: false,
+        hasMultiview: true,
+        hasFairlightAudio: true,
+    },
+    constellationHD: {
+        mixEffectBlocks: 4,
+        upstreamKeyers: 4,
+        downstreamKeyers: 4,
+        auxOutputs: 24,
+        mediaPlayers: 4,
+        mediaStills: 32,
+        mediaClips: 2,
+        colorGenerators: 2,
+        superSources: 2,
+        hasStreaming: false,
+        hasRecording: false,
+        hasMultiview: true,
+        hasFairlightAudio: true,
+    },
+    constellation4K: {
+        mixEffectBlocks: 4,
+        upstreamKeyers: 4,
+        downstreamKeyers: 4,
+        auxOutputs: 24,
+        mediaPlayers: 4,
+        mediaStills: 32,
+        mediaClips: 2,
+        colorGenerators: 2,
+        superSources: 2,
+        hasStreaming: false,
+        hasRecording: false,
+        hasMultiview: true,
+        hasFairlightAudio: true,
+    },
 
     // Auto/default - will be updated from actual device state
-    auto: { mixEffectBlocks: 1, upstreamKeyers: 4, downstreamKeyers: 2, auxOutputs: 6, mediaPlayers: 2, colorGenerators: 2, superSources: 1, hasStreaming: true, hasRecording: true, hasMultiview: true, hasFairlightAudio: true },
+    auto: {
+        mixEffectBlocks: 1,
+        upstreamKeyers: 4,
+        downstreamKeyers: 2,
+        auxOutputs: 6,
+        mediaPlayers: 2,
+        mediaStills: 32,
+        mediaClips: 2,
+        colorGenerators: 2,
+        superSources: 1,
+        hasStreaming: true,
+        hasRecording: true,
+        hasMultiview: true,
+        hasFairlightAudio: true,
+    },
 };
 
 class AtemAdapter extends utils.Adapter {
@@ -91,38 +458,43 @@ class AtemAdapter extends utils.Adapter {
     public constructor(options: Partial<utils.AdapterOptions> = {}) {
         super({
             ...options,
-            name: "atemmini",
+            name: 'atemmini',
         });
-        this.on("ready", this.onReady.bind(this));
-        this.on("stateChange", this.onStateChange.bind(this));
-        this.on("unload", this.onUnload.bind(this));
+        this.on('ready', this.onReady.bind(this));
+        this.on('stateChange', this.onStateChange.bind(this));
+        this.on('unload', this.onUnload.bind(this));
     }
 
     /**
      * Called when adapter is ready to start
      */
     private async onReady(): Promise<void> {
-        this.log.info("Blackmagic ATEM adapter starting...");
+        this.log.info('Blackmagic ATEM adapter starting...');
 
         // Validate configuration
         if (!this.config.host) {
-            this.log.error("No ATEM host configured. Please configure the adapter.");
+            this.log.error('No ATEM host configured. Please configure the adapter.');
             return;
         }
 
         // Set capabilities based on model selection
-        if (this.config.model && this.config.model !== "auto") {
+        if (this.config.model && this.config.model !== 'auto') {
             this.capabilities = MODEL_CAPABILITIES[this.config.model] || MODEL_CAPABILITIES.auto;
             this.log.info(`Using configured model: ${this.config.model}`);
+        } else {
+            this.log.info(`Model set to auto-detect, using default capabilities until device connects`);
         }
+        this.log.info(
+            `Active capabilities: mediaClips=${this.capabilities.mediaClips}, mediaStills=${this.capabilities.mediaStills}, mediaPlayers=${this.capabilities.mediaPlayers}`,
+        );
 
         this.log.info(`ATEM host configured: ${this.config.host}`);
 
         // Create base state structure
         try {
-            this.log.info("Creating state structure...");
+            this.log.info('Creating state structure...');
             await this.createStateStructure();
-            this.log.info("State structure created successfully");
+            this.log.info('State structure created successfully');
         } catch (error) {
             this.log.error(`Failed to create state structure: ${(error as Error).message}`);
             return;
@@ -187,9 +559,9 @@ class AtemAdapter extends utils.Adapter {
         await this.createTallyStates();
 
         // Inputs channel - will be populated dynamically
-        await this.setObjectNotExistsAsync("inputs", {
-            type: "channel",
-            common: { name: "Input Sources" },
+        await this.setObjectNotExistsAsync('inputs', {
+            type: 'channel',
+            common: { name: 'Input Sources' },
             native: {},
         });
 
@@ -197,7 +569,7 @@ class AtemAdapter extends utils.Adapter {
         await this.createMacroStates();
 
         // Subscribe to all writable states
-        await this.subscribeStatesAsync("*");
+        await this.subscribeStatesAsync('*');
     }
 
     /**
@@ -205,13 +577,13 @@ class AtemAdapter extends utils.Adapter {
      * This handles the case where user changes model configuration
      */
     private async cleanupOrphanedStates(): Promise<void> {
-        this.log.info("Checking for orphaned states from previous model configuration...");
+        this.log.info('Checking for orphaned states from previous model configuration...');
 
         // Define maximum possible values (based on largest ATEM model - Constellation 4K Plus)
         const MAX_ME_BLOCKS = 4;
         const MAX_USKS = 4;
         const MAX_DSKS = 4;
-        const MAX_AUX_OUTPUTS = 48;  // Constellation 4K Plus has 48
+        const MAX_AUX_OUTPUTS = 48; // Constellation 4K Plus has 48
         const MAX_MEDIA_PLAYERS = 4;
         const MAX_COLOR_GENERATORS = 2;
         // Note: SuperSource states not yet implemented, so no cleanup needed
@@ -243,6 +615,13 @@ class AtemAdapter extends utils.Adapter {
             await this.deleteObjectWithChildren(`mediaPlayer${mp}`);
         }
 
+        // Clean up clip-related states on models that don't support clips
+        if (this.capabilities.mediaClips === 0) {
+            for (let mp = 0; mp < this.capabilities.mediaPlayers; mp++) {
+                await this.deleteObjectWithChildren(`mediaPlayer${mp}.clipIndex`);
+            }
+        }
+
         // Clean up extra color generators
         for (let cg = this.capabilities.colorGenerators; cg < MAX_COLOR_GENERATORS; cg++) {
             await this.deleteObjectWithChildren(`colorGenerator${cg}`);
@@ -250,19 +629,21 @@ class AtemAdapter extends utils.Adapter {
 
         // Clean up streaming if not supported
         if (!this.capabilities.hasStreaming) {
-            await this.deleteObjectWithChildren("streaming");
+            await this.deleteObjectWithChildren('streaming');
         }
 
         // Clean up recording if not supported
         if (!this.capabilities.hasRecording) {
-            await this.deleteObjectWithChildren("recording");
+            await this.deleteObjectWithChildren('recording');
         }
 
-        this.log.info("Orphaned state cleanup complete");
+        this.log.info('Orphaned state cleanup complete');
     }
 
     /**
      * Delete an object and all its children recursively
+     *
+     * @param objectId
      */
     private async deleteObjectWithChildren(objectId: string): Promise<void> {
         try {
@@ -293,54 +674,68 @@ class AtemAdapter extends utils.Adapter {
     }
 
     private async createDeviceInfoStates(): Promise<void> {
-        await this.setObjectNotExistsAsync("device", {
-            type: "channel",
-            common: { name: "Device Information" },
+        await this.setObjectNotExistsAsync('device', {
+            type: 'channel',
+            common: { name: 'Device Information' },
             native: {},
         });
 
         const deviceStates = [
-            { id: "modelName", name: "Model Name", type: "string" as const, role: "info.name" },
-            { id: "productId", name: "Product ID", type: "string" as const, role: "info.serial" },
-            { id: "videoMode", name: "Video Mode", type: "string" as const, role: "text" },
-            { id: "configuredModel", name: "Configured Model", type: "string" as const, role: "text" },
-            { id: "capabilities", name: "Active Capabilities", type: "string" as const, role: "json" },
+            { id: 'modelName', name: 'Model Name', type: 'string' as const, role: 'info.name' },
+            { id: 'productId', name: 'Product ID', type: 'string' as const, role: 'info.serial' },
+            { id: 'videoMode', name: 'Video Mode', type: 'string' as const, role: 'text' },
+            { id: 'configuredModel', name: 'Configured Model', type: 'string' as const, role: 'text' },
+            { id: 'capabilities', name: 'Active Capabilities', type: 'string' as const, role: 'json' },
         ];
 
         for (const state of deviceStates) {
             await this.setObjectNotExistsAsync(`device.${state.id}`, {
-                type: "state",
+                type: 'state',
                 common: { name: state.name, type: state.type, role: state.role, read: true, write: false },
                 native: {},
             });
         }
 
         // Set the configured model immediately (doesn't require connection)
-        await this.setStateAsync("device.configuredModel", this.config.model || "auto", true);
-        await this.setStateAsync("device.capabilities", JSON.stringify(this.capabilities), true);
+        await this.setStateAsync('device.configuredModel', this.config.model || 'auto', true);
+        await this.setStateAsync('device.capabilities', JSON.stringify(this.capabilities), true);
     }
 
     private async createMixEffectStates(meIndex: number): Promise<void> {
         const meId = `me${meIndex}`;
 
         await this.setObjectNotExistsAsync(meId, {
-            type: "channel",
+            type: 'channel',
             common: { name: `Mix Effect ${meIndex + 1}` },
             native: {},
         });
 
         // Basic ME states
         const meStates = [
-            { id: "programInput", name: "Program Input", type: "number" as const, role: "media.input", write: true },
-            { id: "previewInput", name: "Preview Input", type: "number" as const, role: "media.input", write: true },
-            { id: "inTransition", name: "In Transition", type: "boolean" as const, role: "indicator", write: false },
-            { id: "transitionPosition", name: "Transition Position", type: "number" as const, role: "level", write: true, min: 0, max: 10000 },
-            { id: "transitionFramesRemaining", name: "Transition Frames Remaining", type: "number" as const, role: "value", write: false },
+            { id: 'programInput', name: 'Program Input', type: 'number' as const, role: 'media.input', write: true },
+            { id: 'previewInput', name: 'Preview Input', type: 'number' as const, role: 'media.input', write: true },
+            { id: 'inTransition', name: 'In Transition', type: 'boolean' as const, role: 'indicator', write: false },
+            {
+                id: 'transitionPosition',
+                name: 'Transition Position',
+                type: 'number' as const,
+                role: 'level',
+                write: true,
+                min: 0,
+                max: 10000,
+            },
+            {
+                id: 'transitionFramesRemaining',
+                name: 'Transition Frames Remaining',
+                type: 'number' as const,
+                role: 'value',
+                write: false,
+            },
         ];
 
         for (const state of meStates) {
             await this.setObjectNotExistsAsync(`${meId}.${state.id}`, {
-                type: "state",
+                type: 'state',
                 common: {
                     name: state.name,
                     type: state.type,
@@ -356,95 +751,153 @@ class AtemAdapter extends utils.Adapter {
 
         // Transition settings
         await this.setObjectNotExistsAsync(`${meId}.transition`, {
-            type: "channel",
-            common: { name: "Transition Settings" },
+            type: 'channel',
+            common: { name: 'Transition Settings' },
             native: {},
         });
 
         await this.setObjectNotExistsAsync(`${meId}.transition.style`, {
-            type: "state",
+            type: 'state',
             common: {
-                name: "Transition Style",
-                type: "number",
-                role: "value",
+                name: 'Transition Style',
+                type: 'number',
+                role: 'value',
                 read: true,
                 write: true,
-                states: { 0: "Mix", 1: "Dip", 2: "Wipe", 3: "DVE", 4: "Sting" },
+                states: { 0: 'Mix', 1: 'Dip', 2: 'Wipe', 3: 'DVE', 4: 'Sting' },
             },
             native: {},
         });
 
         await this.setObjectNotExistsAsync(`${meId}.transition.mixRate`, {
-            type: "state",
-            common: { name: "Mix Rate", type: "number", role: "level", read: true, write: true, unit: "frames", min: 1, max: 250 },
+            type: 'state',
+            common: {
+                name: 'Mix Rate',
+                type: 'number',
+                role: 'level',
+                read: true,
+                write: true,
+                unit: 'frames',
+                min: 1,
+                max: 250,
+            },
             native: {},
         });
 
         await this.setObjectNotExistsAsync(`${meId}.transition.dipRate`, {
-            type: "state",
-            common: { name: "Dip Rate", type: "number", role: "level", read: true, write: true, unit: "frames", min: 1, max: 250 },
+            type: 'state',
+            common: {
+                name: 'Dip Rate',
+                type: 'number',
+                role: 'level',
+                read: true,
+                write: true,
+                unit: 'frames',
+                min: 1,
+                max: 250,
+            },
             native: {},
         });
 
         await this.setObjectNotExistsAsync(`${meId}.transition.dipSource`, {
-            type: "state",
-            common: { name: "Dip Source", type: "number", role: "media.input", read: true, write: true },
+            type: 'state',
+            common: { name: 'Dip Source', type: 'number', role: 'media.input', read: true, write: true },
             native: {},
         });
 
         await this.setObjectNotExistsAsync(`${meId}.transition.wipeRate`, {
-            type: "state",
-            common: { name: "Wipe Rate", type: "number", role: "level", read: true, write: true, unit: "frames", min: 1, max: 250 },
+            type: 'state',
+            common: {
+                name: 'Wipe Rate',
+                type: 'number',
+                role: 'level',
+                read: true,
+                write: true,
+                unit: 'frames',
+                min: 1,
+                max: 250,
+            },
             native: {},
         });
 
         await this.setObjectNotExistsAsync(`${meId}.transition.wipePattern`, {
-            type: "state",
+            type: 'state',
             common: {
-                name: "Wipe Pattern",
-                type: "number",
-                role: "value",
+                name: 'Wipe Pattern',
+                type: 'number',
+                role: 'value',
                 read: true,
                 write: true,
                 states: {
-                    0: "Left to Right Bar", 1: "Top to Bottom Bar", 2: "Horizontal Barn Door", 3: "Vertical Barn Door",
-                    4: "Corners In Four Box", 5: "Rectangle Iris", 6: "Diamond Iris", 7: "Circle Iris",
-                    8: "Top Left Box", 9: "Top Right Box", 10: "Bottom Right Box", 11: "Bottom Left Box",
-                    12: "Top Center Box", 13: "Right Center Box", 14: "Bottom Center Box", 15: "Left Center Box",
-                    16: "Top Left Diagonal", 17: "Top Right Diagonal",
+                    0: 'Left to Right Bar',
+                    1: 'Top to Bottom Bar',
+                    2: 'Horizontal Barn Door',
+                    3: 'Vertical Barn Door',
+                    4: 'Corners In Four Box',
+                    5: 'Rectangle Iris',
+                    6: 'Diamond Iris',
+                    7: 'Circle Iris',
+                    8: 'Top Left Box',
+                    9: 'Top Right Box',
+                    10: 'Bottom Right Box',
+                    11: 'Bottom Left Box',
+                    12: 'Top Center Box',
+                    13: 'Right Center Box',
+                    14: 'Bottom Center Box',
+                    15: 'Left Center Box',
+                    16: 'Top Left Diagonal',
+                    17: 'Top Right Diagonal',
                 },
             },
             native: {},
         });
 
         await this.setObjectNotExistsAsync(`${meId}.transition.dveRate`, {
-            type: "state",
-            common: { name: "DVE Rate", type: "number", role: "level", read: true, write: true, unit: "frames", min: 1, max: 250 },
+            type: 'state',
+            common: {
+                name: 'DVE Rate',
+                type: 'number',
+                role: 'level',
+                read: true,
+                write: true,
+                unit: 'frames',
+                min: 1,
+                max: 250,
+            },
             native: {},
         });
 
         // Fade to Black
         await this.setObjectNotExistsAsync(`${meId}.fadeToBlack`, {
-            type: "channel",
-            common: { name: "Fade to Black" },
+            type: 'channel',
+            common: { name: 'Fade to Black' },
             native: {},
         });
 
         await this.setObjectNotExistsAsync(`${meId}.fadeToBlack.isFullyBlack`, {
-            type: "state",
-            common: { name: "Is Fully Black", type: "boolean", role: "indicator", read: true, write: false },
+            type: 'state',
+            common: { name: 'Is Fully Black', type: 'boolean', role: 'indicator', read: true, write: false },
             native: {},
         });
 
         await this.setObjectNotExistsAsync(`${meId}.fadeToBlack.inTransition`, {
-            type: "state",
-            common: { name: "FTB In Transition", type: "boolean", role: "indicator", read: true, write: false },
+            type: 'state',
+            common: { name: 'FTB In Transition', type: 'boolean', role: 'indicator', read: true, write: false },
             native: {},
         });
 
         await this.setObjectNotExistsAsync(`${meId}.fadeToBlack.rate`, {
-            type: "state",
-            common: { name: "FTB Rate", type: "number", role: "level", read: true, write: true, unit: "frames", min: 1, max: 250 },
+            type: 'state',
+            common: {
+                name: 'FTB Rate',
+                type: 'number',
+                role: 'level',
+                read: true,
+                write: true,
+                unit: 'frames',
+                min: 1,
+                max: 250,
+            },
             native: {},
         });
 
@@ -458,23 +911,30 @@ class AtemAdapter extends utils.Adapter {
         const uskId = `me${meIndex}.usk${uskIndex}`;
 
         await this.setObjectNotExistsAsync(uskId, {
-            type: "channel",
+            type: 'channel',
             common: { name: `Upstream Key ${uskIndex + 1}` },
             native: {},
         });
 
         const uskStates = [
-            { id: "onAir", name: "On Air", type: "boolean" as const, role: "switch", write: true },
-            { id: "type", name: "Key Type", type: "number" as const, role: "value", write: true, states: { 0: "Luma", 1: "Chroma", 2: "Pattern", 3: "DVE" } },
-            { id: "fillSource", name: "Fill Source", type: "number" as const, role: "media.input", write: true },
-            { id: "keySource", name: "Key Source", type: "number" as const, role: "media.input", write: true },
-            { id: "maskEnabled", name: "Mask Enabled", type: "boolean" as const, role: "switch", write: true },
-            { id: "flyEnabled", name: "Fly Enabled", type: "boolean" as const, role: "switch", write: true },
+            { id: 'onAir', name: 'On Air', type: 'boolean' as const, role: 'switch', write: true },
+            {
+                id: 'type',
+                name: 'Key Type',
+                type: 'number' as const,
+                role: 'value',
+                write: true,
+                states: { 0: 'Luma', 1: 'Chroma', 2: 'Pattern', 3: 'DVE' },
+            },
+            { id: 'fillSource', name: 'Fill Source', type: 'number' as const, role: 'media.input', write: true },
+            { id: 'keySource', name: 'Key Source', type: 'number' as const, role: 'media.input', write: true },
+            { id: 'maskEnabled', name: 'Mask Enabled', type: 'boolean' as const, role: 'switch', write: true },
+            { id: 'flyEnabled', name: 'Fly Enabled', type: 'boolean' as const, role: 'switch', write: true },
         ];
 
         for (const state of uskStates) {
             await this.setObjectNotExistsAsync(`${uskId}.${state.id}`, {
-                type: "state",
+                type: 'state',
                 common: {
                     name: state.name,
                     type: state.type,
@@ -489,22 +949,22 @@ class AtemAdapter extends utils.Adapter {
     }
 
     private async createCommandStates(): Promise<void> {
-        await this.setObjectNotExistsAsync("commands", {
-            type: "channel",
-            common: { name: "Switcher Commands" },
+        await this.setObjectNotExistsAsync('commands', {
+            type: 'channel',
+            common: { name: 'Switcher Commands' },
             native: {},
         });
 
         const commands = [
-            { id: "cut", name: "Cut", desc: "Perform a cut transition" },
-            { id: "auto", name: "Auto Transition", desc: "Perform an auto transition" },
-            { id: "ftb", name: "Fade to Black", desc: "Toggle fade to black" },
+            { id: 'cut', name: 'Cut', desc: 'Perform a cut transition' },
+            { id: 'auto', name: 'Auto Transition', desc: 'Perform an auto transition' },
+            { id: 'ftb', name: 'Fade to Black', desc: 'Toggle fade to black' },
         ];
 
         for (const cmd of commands) {
             await this.setObjectNotExistsAsync(`commands.${cmd.id}`, {
-                type: "state",
-                common: { name: cmd.name, type: "boolean", role: "button", read: false, write: true, desc: cmd.desc },
+                type: 'state',
+                common: { name: cmd.name, type: 'boolean', role: 'button', read: false, write: true, desc: cmd.desc },
                 native: {},
             });
         }
@@ -514,24 +974,24 @@ class AtemAdapter extends utils.Adapter {
         const dskId = `dsk${dskIndex}`;
 
         await this.setObjectNotExistsAsync(dskId, {
-            type: "channel",
+            type: 'channel',
             common: { name: `Downstream Key ${dskIndex + 1}` },
             native: {},
         });
 
         const dskStates = [
-            { id: "onAir", name: "On Air", type: "boolean" as const, role: "switch", write: true },
-            { id: "tie", name: "Tie to Next Transition", type: "boolean" as const, role: "switch", write: true },
-            { id: "inTransition", name: "In Transition", type: "boolean" as const, role: "indicator", write: false },
-            { id: "rate", name: "Rate", type: "number" as const, role: "level", write: true, unit: "frames" },
-            { id: "fillSource", name: "Fill Source", type: "number" as const, role: "media.input", write: true },
-            { id: "keySource", name: "Key Source", type: "number" as const, role: "media.input", write: true },
-            { id: "preMultiplied", name: "Pre-Multiplied", type: "boolean" as const, role: "switch", write: true },
+            { id: 'onAir', name: 'On Air', type: 'boolean' as const, role: 'switch', write: true },
+            { id: 'tie', name: 'Tie to Next Transition', type: 'boolean' as const, role: 'switch', write: true },
+            { id: 'inTransition', name: 'In Transition', type: 'boolean' as const, role: 'indicator', write: false },
+            { id: 'rate', name: 'Rate', type: 'number' as const, role: 'level', write: true, unit: 'frames' },
+            { id: 'fillSource', name: 'Fill Source', type: 'number' as const, role: 'media.input', write: true },
+            { id: 'keySource', name: 'Key Source', type: 'number' as const, role: 'media.input', write: true },
+            { id: 'preMultiplied', name: 'Pre-Multiplied', type: 'boolean' as const, role: 'switch', write: true },
         ];
 
         for (const state of dskStates) {
             await this.setObjectNotExistsAsync(`${dskId}.${state.id}`, {
-                type: "state",
+                type: 'state',
                 common: {
                     name: state.name,
                     type: state.type,
@@ -545,8 +1005,15 @@ class AtemAdapter extends utils.Adapter {
         }
 
         await this.setObjectNotExistsAsync(`${dskId}.auto`, {
-            type: "state",
-            common: { name: "Auto DSK", type: "boolean", role: "button", read: false, write: true, desc: "Perform auto DSK transition" },
+            type: 'state',
+            common: {
+                name: 'Auto DSK',
+                type: 'boolean',
+                role: 'button',
+                read: false,
+                write: true,
+                desc: 'Perform auto DSK transition',
+            },
             native: {},
         });
     }
@@ -555,42 +1022,82 @@ class AtemAdapter extends utils.Adapter {
         const auxId = `aux${auxIndex}`;
 
         await this.setObjectNotExistsAsync(auxId, {
-            type: "channel",
+            type: 'channel',
             common: { name: `Auxiliary Output ${auxIndex + 1}` },
             native: {},
         });
 
         await this.setObjectNotExistsAsync(`${auxId}.source`, {
-            type: "state",
-            common: { name: "Source", type: "number", role: "media.input", read: true, write: true, desc: "Auxiliary output source input" },
+            type: 'state',
+            common: {
+                name: 'Source',
+                type: 'number',
+                role: 'media.input',
+                read: true,
+                write: true,
+                desc: 'Auxiliary output source input',
+            },
             native: {},
         });
     }
 
     private async createAudioStates(): Promise<void> {
-        await this.setObjectNotExistsAsync("audio", {
-            type: "channel",
-            common: { name: "Audio Mixer" },
+        await this.setObjectNotExistsAsync('audio', {
+            type: 'channel',
+            common: { name: 'Audio Mixer' },
             native: {},
         });
 
         // Master output
-        await this.setObjectNotExistsAsync("audio.master", {
-            type: "channel",
-            common: { name: "Master Output" },
+        await this.setObjectNotExistsAsync('audio.master', {
+            type: 'channel',
+            common: { name: 'Master Output' },
             native: {},
         });
 
         const masterStates = [
-            { id: "gain", name: "Master Gain", type: "number" as const, role: "level.volume", write: true, min: -60, max: 6, unit: "dB" },
-            { id: "balance", name: "Master Balance", type: "number" as const, role: "level", write: true, min: -50, max: 50 },
-            { id: "afv", name: "Audio Follow Video", type: "boolean" as const, role: "switch", write: true },
-            { id: "programOutGain", name: "Program Out Gain", type: "number" as const, role: "level.volume", write: true, min: -60, max: 6, unit: "dB" },
+            {
+                id: 'gain',
+                name: 'Master Gain',
+                type: 'number' as const,
+                role: 'level.volume',
+                write: true,
+                min: -60,
+                max: 6,
+                unit: 'dB',
+            },
+            {
+                id: 'balance',
+                name: 'Master Balance',
+                type: 'number' as const,
+                role: 'level',
+                write: true,
+                min: -50,
+                max: 50,
+            },
+            { id: 'afv', name: 'Audio Follow Video', type: 'boolean' as const, role: 'switch', write: true },
+            {
+                id: 'afvCrossfade',
+                name: 'AFV Crossfade Transition',
+                type: 'boolean' as const,
+                role: 'switch',
+                write: true,
+            },
+            {
+                id: 'programOutGain',
+                name: 'Program Out Gain',
+                type: 'number' as const,
+                role: 'level.volume',
+                write: true,
+                min: -60,
+                max: 6,
+                unit: 'dB',
+            },
         ];
 
         for (const state of masterStates) {
             await this.setObjectNotExistsAsync(`audio.master.${state.id}`, {
-                type: "state",
+                type: 'state',
                 common: {
                     name: state.name,
                     type: state.type,
@@ -605,10 +1112,70 @@ class AtemAdapter extends utils.Adapter {
             });
         }
 
+        // Monitor channel
+        await this.setObjectNotExistsAsync('audio.monitor', {
+            type: 'channel',
+            common: { name: 'Monitor Output' },
+            native: {},
+        });
+
+        const monitorStates = [
+            { id: 'enabled', name: 'Monitor Enabled', type: 'boolean' as const, role: 'switch', write: true },
+            {
+                id: 'gain',
+                name: 'Monitor Gain',
+                type: 'number' as const,
+                role: 'level.volume',
+                write: true,
+                min: -60,
+                max: 6,
+                unit: 'dB',
+            },
+            { id: 'mute', name: 'Monitor Mute', type: 'boolean' as const, role: 'switch', write: true },
+            { id: 'solo', name: 'Monitor Solo', type: 'boolean' as const, role: 'switch', write: true },
+            { id: 'dim', name: 'Monitor Dim', type: 'boolean' as const, role: 'switch', write: true },
+        ];
+
+        for (const state of monitorStates) {
+            await this.setObjectNotExistsAsync(`audio.monitor.${state.id}`, {
+                type: 'state',
+                common: {
+                    name: state.name,
+                    type: state.type,
+                    role: state.role,
+                    read: true,
+                    write: state.write,
+                    min: state.min,
+                    max: state.max,
+                    unit: state.unit,
+                },
+                native: {},
+            });
+        }
+
+        // Audio commands/utilities
+        await this.setObjectNotExistsAsync('audio.commands', {
+            type: 'channel',
+            common: { name: 'Audio Commands' },
+            native: {},
+        });
+
+        await this.setObjectNotExistsAsync('audio.commands.resetPeaks', {
+            type: 'state',
+            common: {
+                name: 'Reset Audio Peaks',
+                type: 'boolean',
+                role: 'button',
+                read: false,
+                write: true,
+            },
+            native: {},
+        });
+
         // Audio inputs channel - will be populated dynamically
-        await this.setObjectNotExistsAsync("audio.inputs", {
-            type: "channel",
-            common: { name: "Audio Inputs" },
+        await this.setObjectNotExistsAsync('audio.inputs', {
+            type: 'channel',
+            common: { name: 'Audio Inputs' },
             native: {},
         });
     }
@@ -617,20 +1184,47 @@ class AtemAdapter extends utils.Adapter {
         const cgId = `colorGenerator${cgIndex}`;
 
         await this.setObjectNotExistsAsync(cgId, {
-            type: "channel",
+            type: 'channel',
             common: { name: `Color Generator ${cgIndex + 1}` },
             native: {},
         });
 
         const cgStates = [
-            { id: "hue", name: "Hue", type: "number" as const, role: "level.color.hue", write: true, min: 0, max: 360, unit: "°" },
-            { id: "saturation", name: "Saturation", type: "number" as const, role: "level.color.saturation", write: true, min: 0, max: 100, unit: "%" },
-            { id: "luminance", name: "Luminance", type: "number" as const, role: "level.color.luminance", write: true, min: 0, max: 100, unit: "%" },
+            {
+                id: 'hue',
+                name: 'Hue',
+                type: 'number' as const,
+                role: 'level.color.hue',
+                write: true,
+                min: 0,
+                max: 3600,
+                unit: '°',
+            },
+            {
+                id: 'saturation',
+                name: 'Saturation',
+                type: 'number' as const,
+                role: 'level.color.saturation',
+                write: true,
+                min: 0,
+                max: 1000,
+                unit: '%',
+            },
+            {
+                id: 'luminance',
+                name: 'Luminance',
+                type: 'number' as const,
+                role: 'level.color.luminance',
+                write: true,
+                min: 0,
+                max: 1000,
+                unit: '%',
+            },
         ];
 
         for (const state of cgStates) {
-            await this.setObjectNotExistsAsync(`${cgId}.${state.id}`, {
-                type: "state",
+            await this.setObjectAsync(`${cgId}.${state.id}`, {
+                type: 'state',
                 common: {
                     name: state.name,
                     type: state.type,
@@ -647,35 +1241,58 @@ class AtemAdapter extends utils.Adapter {
     }
 
     private async createStreamingStates(): Promise<void> {
-        await this.setObjectNotExistsAsync("streaming", {
-            type: "channel",
-            common: { name: "Streaming" },
+        await this.setObjectNotExistsAsync('streaming', {
+            type: 'channel',
+            common: { name: 'Streaming' },
             native: {},
         });
 
-        await this.setObjectNotExistsAsync("streaming.status", {
-            type: "state",
+        await this.setObjectNotExistsAsync('streaming.status', {
+            type: 'state',
             common: {
-                name: "Streaming Status",
-                type: "number",
-                role: "value",
+                name: 'Streaming Status',
+                type: 'number',
+                role: 'value',
                 read: true,
                 write: false,
-                states: { 0: "Idle", 1: "Connecting", 2: "Streaming", 4: "Stopping" },
+                states: { 0: 'Idle', 1: 'Connecting', 2: 'Streaming', 4: 'Stopping' },
             },
             native: {},
         });
 
         const streamingStates = [
-            { id: "start", name: "Start Streaming", type: "boolean" as const, role: "button", write: true, read: false },
-            { id: "stop", name: "Stop Streaming", type: "boolean" as const, role: "button", write: true, read: false },
-            { id: "duration", name: "Streaming Duration", type: "number" as const, role: "value.interval", write: false, read: true, unit: "s" },
-            { id: "cacheUsed", name: "Cache Used", type: "number" as const, role: "value", write: false, read: true, unit: "%" },
+            {
+                id: 'start',
+                name: 'Start Streaming',
+                type: 'boolean' as const,
+                role: 'button',
+                write: true,
+                read: false,
+            },
+            { id: 'stop', name: 'Stop Streaming', type: 'boolean' as const, role: 'button', write: true, read: false },
+            {
+                id: 'duration',
+                name: 'Streaming Duration',
+                type: 'number' as const,
+                role: 'value.interval',
+                write: false,
+                read: true,
+                unit: 's',
+            },
+            {
+                id: 'cacheUsed',
+                name: 'Cache Used',
+                type: 'number' as const,
+                role: 'value',
+                write: false,
+                read: true,
+                unit: '%',
+            },
         ];
 
         for (const state of streamingStates) {
             await this.setObjectNotExistsAsync(`streaming.${state.id}`, {
-                type: "state",
+                type: 'state',
                 common: {
                     name: state.name,
                     type: state.type,
@@ -690,36 +1307,66 @@ class AtemAdapter extends utils.Adapter {
     }
 
     private async createRecordingStates(): Promise<void> {
-        await this.setObjectNotExistsAsync("recording", {
-            type: "channel",
-            common: { name: "Recording" },
+        await this.setObjectNotExistsAsync('recording', {
+            type: 'channel',
+            common: { name: 'Recording' },
             native: {},
         });
 
-        await this.setObjectNotExistsAsync("recording.status", {
-            type: "state",
+        await this.setObjectNotExistsAsync('recording.status', {
+            type: 'state',
             common: {
-                name: "Recording Status",
-                type: "number",
-                role: "value",
+                name: 'Recording Status',
+                type: 'number',
+                role: 'value',
                 read: true,
                 write: false,
-                states: { 0: "Idle", 1: "Recording", 2: "Stopping" },
+                states: { 0: 'Idle', 1: 'Recording', 2: 'Stopping' },
             },
             native: {},
         });
 
         const recordingStates = [
-            { id: "start", name: "Start Recording", type: "boolean" as const, role: "button", write: true, read: false },
-            { id: "stop", name: "Stop Recording", type: "boolean" as const, role: "button", write: true, read: false },
-            { id: "switchDisk", name: "Switch Disk", type: "boolean" as const, role: "button", write: true, read: false },
-            { id: "duration", name: "Recording Duration", type: "number" as const, role: "value.interval", write: false, read: true, unit: "s" },
-            { id: "remainingDiskSpace", name: "Remaining Disk Space", type: "number" as const, role: "value", write: false, read: true, unit: "s" },
+            {
+                id: 'start',
+                name: 'Start Recording',
+                type: 'boolean' as const,
+                role: 'button',
+                write: true,
+                read: false,
+            },
+            { id: 'stop', name: 'Stop Recording', type: 'boolean' as const, role: 'button', write: true, read: false },
+            {
+                id: 'switchDisk',
+                name: 'Switch Disk',
+                type: 'boolean' as const,
+                role: 'button',
+                write: true,
+                read: false,
+            },
+            {
+                id: 'duration',
+                name: 'Recording Duration',
+                type: 'number' as const,
+                role: 'value.interval',
+                write: false,
+                read: true,
+                unit: 's',
+            },
+            {
+                id: 'remainingDiskSpace',
+                name: 'Remaining Disk Space',
+                type: 'number' as const,
+                role: 'value',
+                write: false,
+                read: true,
+                unit: 's',
+            },
         ];
 
         for (const state of recordingStates) {
             await this.setObjectNotExistsAsync(`recording.${state.id}`, {
-                type: "state",
+                type: 'state',
                 common: {
                     name: state.name,
                     type: state.type,
@@ -737,35 +1384,81 @@ class AtemAdapter extends utils.Adapter {
         const mpId = `mediaPlayer${mpIndex}`;
 
         await this.setObjectNotExistsAsync(mpId, {
-            type: "channel",
+            type: 'channel',
             common: { name: `Media Player ${mpIndex + 1}` },
             native: {},
         });
 
-        await this.setObjectNotExistsAsync(`${mpId}.sourceType`, {
-            type: "state",
-            common: { name: "Source Type", type: "number", role: "value", read: true, write: true, states: { 1: "Still", 2: "Clip" } },
+        // Source type: only show Clip option if model supports clips
+        const sourceTypeStates: Record<number, string> = { 1: 'Still' };
+        if (this.capabilities.mediaClips > 0) {
+            sourceTypeStates[2] = 'Clip';
+        }
+
+        // Use setObject to fully replace sourceType (extendObject merges and won't remove old states entries)
+        await this.setObjectAsync(`${mpId}.sourceType`, {
+            type: 'state',
+            common: {
+                name: 'Source Type',
+                type: 'number',
+                role: 'value',
+                read: true,
+                write: true,
+                states: sourceTypeStates,
+            },
             native: {},
         });
 
+        // Still index with proper max based on model
+        await this.setObjectAsync(`${mpId}.stillIndex`, {
+            type: 'state',
+            common: {
+                name: 'Still Index',
+                type: 'number',
+                role: 'value',
+                read: true,
+                write: true,
+                min: 0,
+                max: this.capabilities.mediaStills - 1,
+            },
+            native: {},
+        });
+
+        // Only create clip states if model supports clips, otherwise delete any existing clipIndex
+        if (this.capabilities.mediaClips > 0) {
+            await this.setObjectAsync(`${mpId}.clipIndex`, {
+                type: 'state',
+                common: {
+                    name: 'Clip Index',
+                    type: 'number',
+                    role: 'value',
+                    read: true,
+                    write: true,
+                    min: 0,
+                    max: this.capabilities.mediaClips - 1,
+                },
+                native: {},
+            });
+        } else {
+            // Delete any existing clipIndex using the same method that works for other orphaned objects
+            await this.deleteObjectWithChildren(`${mpId}.clipIndex`);
+        }
+
         const mpStates = [
-            { id: "stillIndex", name: "Still Index", type: "number" as const, role: "value", write: true, min: 0 },
-            { id: "clipIndex", name: "Clip Index", type: "number" as const, role: "value", write: true, min: 0 },
-            { id: "playing", name: "Playing", type: "boolean" as const, role: "media.state", write: true },
-            { id: "loop", name: "Loop", type: "boolean" as const, role: "switch", write: true },
-            { id: "atBeginning", name: "At Beginning", type: "boolean" as const, role: "indicator", write: false },
+            { id: 'playing', name: 'Playing', type: 'boolean' as const, role: 'media.state', write: true },
+            { id: 'loop', name: 'Loop', type: 'boolean' as const, role: 'switch', write: true },
+            { id: 'atBeginning', name: 'At Beginning', type: 'boolean' as const, role: 'indicator', write: false },
         ];
 
         for (const state of mpStates) {
             await this.setObjectNotExistsAsync(`${mpId}.${state.id}`, {
-                type: "state",
+                type: 'state',
                 common: {
                     name: state.name,
                     type: state.type,
                     role: state.role,
                     read: true,
                     write: state.write,
-                    min: state.min,
                 },
                 native: {},
             });
@@ -773,21 +1466,35 @@ class AtemAdapter extends utils.Adapter {
     }
 
     private async createTallyStates(): Promise<void> {
-        await this.setObjectNotExistsAsync("tally", {
-            type: "channel",
-            common: { name: "Tally Information" },
+        await this.setObjectNotExistsAsync('tally', {
+            type: 'channel',
+            common: { name: 'Tally Information' },
             native: {},
         });
 
-        await this.setObjectNotExistsAsync("tally.programInputs", {
-            type: "state",
-            common: { name: "Program Inputs", type: "string", role: "json", read: true, write: false, desc: "JSON array of input IDs currently on program" },
+        await this.setObjectNotExistsAsync('tally.programInputs', {
+            type: 'state',
+            common: {
+                name: 'Program Inputs',
+                type: 'string',
+                role: 'json',
+                read: true,
+                write: false,
+                desc: 'JSON array of input IDs currently on program',
+            },
             native: {},
         });
 
-        await this.setObjectNotExistsAsync("tally.previewInputs", {
-            type: "state",
-            common: { name: "Preview Inputs", type: "string", role: "json", read: true, write: false, desc: "JSON array of input IDs currently on preview" },
+        await this.setObjectNotExistsAsync('tally.previewInputs', {
+            type: 'state',
+            common: {
+                name: 'Preview Inputs',
+                type: 'string',
+                role: 'json',
+                read: true,
+                write: false,
+                desc: 'JSON array of input IDs currently on preview',
+            },
             native: {},
         });
     }
@@ -796,26 +1503,81 @@ class AtemAdapter extends utils.Adapter {
         // All ATEM models support 100 macro slots (0-99)
         const MACRO_SLOTS = 100;
 
-        await this.setObjectNotExistsAsync("macros", {
-            type: "channel",
-            common: { name: "Macros" },
+        await this.setObjectNotExistsAsync('macros', {
+            type: 'channel',
+            common: { name: 'Macros' },
             native: {},
         });
 
         const macroStates = [
-            { id: "run", name: "Run Macro", type: "number" as const, role: "level", write: true, read: false, min: 0, max: 99, desc: "Run macro by index (0-99)" },
-            { id: "stop", name: "Stop Macro", type: "boolean" as const, role: "button", write: true, read: false, desc: "Stop currently running macro" },
-            { id: "continue", name: "Continue Macro", type: "boolean" as const, role: "button", write: true, read: false, desc: "Continue a paused/waiting macro" },
-            { id: "isRunning", name: "Macro Running", type: "boolean" as const, role: "indicator", write: false, read: true },
-            { id: "isWaiting", name: "Macro Waiting", type: "boolean" as const, role: "indicator", write: false, read: true },
-            { id: "loop", name: "Macro Loop", type: "boolean" as const, role: "switch", write: true, read: true },
-            { id: "runningIndex", name: "Running Macro Index", type: "number" as const, role: "value", write: false, read: true },
-            { id: "recordedCount", name: "Recorded Macros Count", type: "number" as const, role: "value", write: false, read: true, desc: "Number of recorded macros" },
+            {
+                id: 'run',
+                name: 'Run Macro',
+                type: 'number' as const,
+                role: 'level',
+                write: true,
+                read: false,
+                min: 0,
+                max: 99,
+                desc: 'Run macro by index (0-99)',
+            },
+            {
+                id: 'stop',
+                name: 'Stop Macro',
+                type: 'boolean' as const,
+                role: 'button',
+                write: true,
+                read: false,
+                desc: 'Stop currently running macro',
+            },
+            {
+                id: 'continue',
+                name: 'Continue Macro',
+                type: 'boolean' as const,
+                role: 'button',
+                write: true,
+                read: false,
+                desc: 'Continue a paused/waiting macro',
+            },
+            {
+                id: 'isRunning',
+                name: 'Macro Running',
+                type: 'boolean' as const,
+                role: 'indicator',
+                write: false,
+                read: true,
+            },
+            {
+                id: 'isWaiting',
+                name: 'Macro Waiting',
+                type: 'boolean' as const,
+                role: 'indicator',
+                write: false,
+                read: true,
+            },
+            { id: 'loop', name: 'Macro Loop', type: 'boolean' as const, role: 'switch', write: true, read: true },
+            {
+                id: 'runningIndex',
+                name: 'Running Macro Index',
+                type: 'number' as const,
+                role: 'value',
+                write: false,
+                read: true,
+            },
+            {
+                id: 'recordedCount',
+                name: 'Recorded Macros Count',
+                type: 'number' as const,
+                role: 'value',
+                write: false,
+                read: true,
+                desc: 'Number of recorded macros',
+            },
         ];
 
         for (const state of macroStates) {
             await this.setObjectNotExistsAsync(`macros.${state.id}`, {
-                type: "state",
+                type: 'state',
                 common: {
                     name: state.name,
                     type: state.type,
@@ -831,35 +1593,49 @@ class AtemAdapter extends utils.Adapter {
         }
 
         // Create channel for macro slots
-        await this.setObjectNotExistsAsync("macros.slots", {
-            type: "channel",
-            common: { name: "Macro Slots (0-99)" },
+        await this.setObjectNotExistsAsync('macros.slots', {
+            type: 'channel',
+            common: { name: 'Macro Slots (0-99)' },
             native: {},
         });
 
         // Create states for each macro slot to show name and status
         for (let i = 0; i < MACRO_SLOTS; i++) {
             await this.setObjectNotExistsAsync(`macros.slots.${i}`, {
-                type: "channel",
+                type: 'channel',
                 common: { name: `Macro ${i}` },
                 native: {},
             });
 
             await this.setObjectNotExistsAsync(`macros.slots.${i}.name`, {
-                type: "state",
-                common: { name: "Macro Name", type: "string", role: "text", read: true, write: false },
+                type: 'state',
+                common: { name: 'Macro Name', type: 'string', role: 'text', read: true, write: false },
                 native: {},
             });
 
             await this.setObjectNotExistsAsync(`macros.slots.${i}.isUsed`, {
-                type: "state",
-                common: { name: "Macro Recorded", type: "boolean", role: "indicator", read: true, write: false, desc: "Whether a macro is recorded in this slot" },
+                type: 'state',
+                common: {
+                    name: 'Macro Recorded',
+                    type: 'boolean',
+                    role: 'indicator',
+                    read: true,
+                    write: false,
+                    desc: 'Whether a macro is recorded in this slot',
+                },
                 native: {},
             });
 
             await this.setObjectNotExistsAsync(`macros.slots.${i}.trigger`, {
-                type: "state",
-                common: { name: "Trigger Macro", type: "boolean", role: "button", read: false, write: true, desc: "Click to run this macro" },
+                type: 'state',
+                common: {
+                    name: 'Trigger Macro',
+                    type: 'boolean',
+                    role: 'button',
+                    read: false,
+                    write: true,
+                    desc: 'Click to run this macro',
+                },
                 native: {},
             });
         }
@@ -878,34 +1654,39 @@ class AtemAdapter extends utils.Adapter {
         try {
             this.atem = new Atem();
 
-            this.atem.on("connected", async () => {
-                this.log.info("Connected to ATEM");
+            this.atem.on('connected', async () => {
+                this.log.info('Connected to ATEM');
                 this.isConnecting = false;
-                await this.setStateAsync("info.connection", true, true);
+                await this.setStateAsync('info.connection', true, true);
 
                 // Update capabilities from actual device if auto-detect
-                if (this.config.model === "auto" && this.atem?.state) {
+                if (this.config.model === 'auto' && this.atem?.state) {
                     await this.updateCapabilitiesFromDevice();
+                    // Re-create state structure with actual device capabilities
+                    // This cleans up states that don't apply to the detected model
+                    this.log.info('Rebuilding state structure based on detected device capabilities...');
+                    await this.createStateStructure();
+                    this.log.info('State structure rebuilt successfully');
                 }
 
                 await this.updateAllStates();
             });
 
-            this.atem.on("disconnected", () => {
-                this.log.warn("Disconnected from ATEM");
-                this.setStateAsync("info.connection", false, true);
+            this.atem.on('disconnected', () => {
+                this.log.warn('Disconnected from ATEM');
+                this.setStateAsync('info.connection', false, true);
                 this.scheduleReconnect();
             });
 
-            this.atem.on("error", (error: string) => {
+            this.atem.on('error', (error: string) => {
                 this.log.error(`ATEM error: ${error}`);
             });
 
-            this.atem.on("stateChanged", (_state, pathToChange: string[]) => {
+            this.atem.on('stateChanged', (_state, pathToChange: string[]) => {
                 this.handleStateChanged(pathToChange);
             });
 
-            this.atem.on("info", (info: string) => {
+            this.atem.on('info', (info: string) => {
                 this.log.debug(`ATEM info: ${info}`);
             });
 
@@ -919,17 +1700,22 @@ class AtemAdapter extends utils.Adapter {
     }
 
     private async updateCapabilitiesFromDevice(): Promise<void> {
-        if (!this.atem?.state) return;
+        if (!this.atem?.state) {
+            return;
+        }
 
         const state = this.atem.state;
 
         // Update capabilities based on actual device
+        const mediaPool = (state.info as any)?.mediaPool;
         this.capabilities = {
             mixEffectBlocks: state.video?.mixEffects?.length || 1,
             upstreamKeyers: state.video?.mixEffects?.[0]?.upstreamKeyers?.length || 1,
             downstreamKeyers: state.video?.downstreamKeyers?.length || 1,
             auxOutputs: Object.keys(state.video?.auxilliaries || {}).length,
             mediaPlayers: state.media?.players?.length || 1,
+            mediaStills: mediaPool?.stillCount || state.media?.stillPool?.length || 20,
+            mediaClips: mediaPool?.clipCount || state.media?.clipPool?.length || 0,
             colorGenerators: Object.keys(state.colorGenerators || {}).length || 2,
             superSources: state.video?.superSources?.length || 0,
             hasStreaming: !!state.streaming,
@@ -941,7 +1727,7 @@ class AtemAdapter extends utils.Adapter {
         this.log.info(`Device capabilities detected: ${JSON.stringify(this.capabilities)}`);
 
         // Update capabilities state
-        await this.setStateAsync("device.capabilities", JSON.stringify(this.capabilities), true);
+        await this.setStateAsync('device.capabilities', JSON.stringify(this.capabilities), true);
     }
 
     private scheduleReconnect(): void {
@@ -971,13 +1757,13 @@ class AtemAdapter extends utils.Adapter {
 
         // Device info
         if (state.info) {
-            await this.setStateAsync("device.modelName", state.info.model?.toString() || "Unknown", true);
-            await this.setStateAsync("device.productId", state.info.productIdentifier || "Unknown", true);
+            await this.setStateAsync('device.modelName', state.info.model?.toString() || 'Unknown', true);
+            await this.setStateAsync('device.productId', state.info.productIdentifier || 'Unknown', true);
         }
 
         // Video mode
         if (state.settings?.videoMode !== undefined) {
-            await this.setStateAsync("device.videoMode", state.settings.videoMode.toString(), true);
+            await this.setStateAsync('device.videoMode', state.settings.videoMode.toString(), true);
         }
 
         // Mix Effects
@@ -1026,7 +1812,9 @@ class AtemAdapter extends utils.Adapter {
     }
 
     private async updateMixEffectStates(meIndex: number): Promise<void> {
-        if (!this.atem?.state?.video?.mixEffects?.[meIndex]) return;
+        if (!this.atem?.state?.video?.mixEffects?.[meIndex]) {
+            return;
+        }
         const me = this.atem.state.video.mixEffects[meIndex];
         const meId = `me${meIndex}`;
 
@@ -1034,7 +1822,11 @@ class AtemAdapter extends utils.Adapter {
         await this.setStateAsync(`${meId}.previewInput`, me.previewInput || 0, true);
         await this.setStateAsync(`${meId}.inTransition`, me.transitionPosition?.inTransition || false, true);
         await this.setStateAsync(`${meId}.transitionPosition`, me.transitionPosition?.handlePosition || 0, true);
-        await this.setStateAsync(`${meId}.transitionFramesRemaining`, me.transitionPosition?.remainingFrames || 0, true);
+        await this.setStateAsync(
+            `${meId}.transitionFramesRemaining`,
+            me.transitionPosition?.remainingFrames || 0,
+            true,
+        );
 
         // Transition settings
         if (me.transitionProperties) {
@@ -1051,7 +1843,11 @@ class AtemAdapter extends utils.Adapter {
             }
             if (me.transitionSettings.wipe) {
                 await this.setStateAsync(`${meId}.transition.wipeRate`, me.transitionSettings.wipe.rate || 30, true);
-                await this.setStateAsync(`${meId}.transition.wipePattern`, me.transitionSettings.wipe.pattern || 0, true);
+                await this.setStateAsync(
+                    `${meId}.transition.wipePattern`,
+                    me.transitionSettings.wipe.pattern || 0,
+                    true,
+                );
             }
             if (me.transitionSettings.DVE) {
                 await this.setStateAsync(`${meId}.transition.dveRate`, me.transitionSettings.DVE.rate || 30, true);
@@ -1074,7 +1870,11 @@ class AtemAdapter extends utils.Adapter {
                     await this.setStateAsync(`${meId}.usk${i}.type`, usk.mixEffectKeyType || 0, true);
                     await this.setStateAsync(`${meId}.usk${i}.fillSource`, usk.fillSource || 0, true);
                     await this.setStateAsync(`${meId}.usk${i}.keySource`, usk.cutSource || 0, true);
-                    await this.setStateAsync(`${meId}.usk${i}.maskEnabled`, usk.maskSettings?.maskEnabled || false, true);
+                    await this.setStateAsync(
+                        `${meId}.usk${i}.maskEnabled`,
+                        usk.maskSettings?.maskEnabled || false,
+                        true,
+                    );
                     await this.setStateAsync(`${meId}.usk${i}.flyEnabled`, usk.flyEnabled || false, true);
                 }
             }
@@ -1082,9 +1882,15 @@ class AtemAdapter extends utils.Adapter {
     }
 
     private async updateDSKStates(): Promise<void> {
-        if (!this.atem?.state?.video?.downstreamKeyers) return;
+        if (!this.atem?.state?.video?.downstreamKeyers) {
+            return;
+        }
 
-        for (let i = 0; i < this.atem.state.video.downstreamKeyers.length && i < this.capabilities.downstreamKeyers; i++) {
+        for (
+            let i = 0;
+            i < this.atem.state.video.downstreamKeyers.length && i < this.capabilities.downstreamKeyers;
+            i++
+        ) {
             const dsk = this.atem.state.video.downstreamKeyers[i];
             if (dsk) {
                 await this.setStateAsync(`dsk${i}.onAir`, dsk.onAir || false, true);
@@ -1099,7 +1905,9 @@ class AtemAdapter extends utils.Adapter {
     }
 
     private async updateAuxStates(): Promise<void> {
-        if (!this.atem?.state?.video?.auxilliaries) return;
+        if (!this.atem?.state?.video?.auxilliaries) {
+            return;
+        }
 
         const auxOutputs = this.atem.state.video.auxilliaries;
         for (const [auxIndex, source] of Object.entries(auxOutputs)) {
@@ -1112,22 +1920,65 @@ class AtemAdapter extends utils.Adapter {
 
     private async updateAudioStates(): Promise<void> {
         if (this.atem?.state?.audio?.master) {
-            await this.setStateAsync("audio.master.gain", this.atem.state.audio.master.gain || 0, true);
-            await this.setStateAsync("audio.master.balance", this.atem.state.audio.master.balance || 0, true);
-            await this.setStateAsync("audio.master.afv", this.atem.state.audio.master.followFadeToBlack || false, true);
+            await this.setStateAsync('audio.master.gain', this.atem.state.audio.master.gain || 0, true);
+            await this.setStateAsync('audio.master.balance', this.atem.state.audio.master.balance || 0, true);
+            await this.setStateAsync('audio.master.afv', this.atem.state.audio.master.followFadeToBlack || false, true);
         }
 
         // Also check Fairlight audio if available
         if (this.atem?.state?.fairlight?.master) {
             const master = this.atem.state.fairlight.master;
             if (master.properties?.faderGain !== undefined) {
-                await this.setStateAsync("audio.master.gain", master.properties.faderGain, true);
+                await this.setStateAsync('audio.master.gain', master.properties.faderGain, true);
+            }
+            if (master.properties?.followFadeToBlack !== undefined) {
+                await this.setStateAsync('audio.master.afv', master.properties.followFadeToBlack, true);
+            }
+        }
+
+        // Audio Follow Video Crossfade (check both Classic and Fairlight)
+        if (this.atem?.state?.audio?.audioFollowVideoCrossfadeTransitionEnabled !== undefined) {
+            await this.setStateAsync(
+                'audio.master.afvCrossfade',
+                this.atem.state.audio.audioFollowVideoCrossfadeTransitionEnabled,
+                true,
+            );
+        }
+
+        if (this.atem?.state?.fairlight?.audioFollowVideoCrossfadeTransitionEnabled !== undefined) {
+            await this.setStateAsync(
+                'audio.master.afvCrossfade',
+                this.atem.state.fairlight.audioFollowVideoCrossfadeTransitionEnabled,
+                true,
+            );
+        }
+
+        // Update monitor states (Classic Audio)
+        if (this.atem?.state?.audio?.monitor) {
+            const monitor = this.atem.state.audio.monitor;
+            await this.setStateAsync('audio.monitor.enabled', monitor.enabled || false, true);
+            await this.setStateAsync('audio.monitor.gain', monitor.gain || 0, true);
+            await this.setStateAsync('audio.monitor.mute', monitor.mute || false, true);
+            await this.setStateAsync('audio.monitor.solo', monitor.solo || false, true);
+            await this.setStateAsync('audio.monitor.dim', monitor.dim || false, true);
+        }
+
+        // Update Fairlight monitor if available
+        if (this.capabilities.hasFairlightAudio && this.atem?.state?.fairlight?.monitor) {
+            const monitor = this.atem.state.fairlight.monitor;
+            if (monitor.gain !== undefined) {
+                await this.setStateAsync('audio.monitor.gain', monitor.gain, true);
+            }
+            if (monitor.inputMasterMuted !== undefined) {
+                await this.setStateAsync('audio.monitor.mute', monitor.inputMasterMuted, true);
             }
         }
     }
 
     private async updateColorGeneratorStates(): Promise<void> {
-        if (!this.atem?.state?.colorGenerators) return;
+        if (!this.atem?.state?.colorGenerators) {
+            return;
+        }
 
         for (const [index, cg] of Object.entries(this.atem.state.colorGenerators)) {
             const cgIndex = parseInt(index);
@@ -1140,38 +1991,42 @@ class AtemAdapter extends utils.Adapter {
     }
 
     private async updateStreamingStates(): Promise<void> {
-        if (!this.atem?.state?.streaming) return;
+        if (!this.atem?.state?.streaming) {
+            return;
+        }
         const streaming = this.atem.state.streaming;
 
         if (streaming.status) {
-            await this.setStateAsync("streaming.status", streaming.status.state || 0, true);
+            await this.setStateAsync('streaming.status', streaming.status.state || 0, true);
         }
         if (streaming.duration) {
             const duration = this.timecodeToSeconds(streaming.duration);
-            await this.setStateAsync("streaming.duration", duration, true);
+            await this.setStateAsync('streaming.duration', duration, true);
         }
         if (streaming.stats?.encodingBitrate !== undefined) {
-            await this.setStateAsync("streaming.cacheUsed", streaming.stats.cacheUsed || 0, true);
+            await this.setStateAsync('streaming.cacheUsed', streaming.stats.cacheUsed || 0, true);
         }
     }
 
     private async updateRecordingStates(): Promise<void> {
-        if (!this.atem?.state?.recording) return;
+        if (!this.atem?.state?.recording) {
+            return;
+        }
         const recording = this.atem.state.recording;
 
         if (recording.status) {
-            await this.setStateAsync("recording.status", recording.status.state || 0, true);
+            await this.setStateAsync('recording.status', recording.status.state || 0, true);
         }
         if (recording.duration) {
             const duration = this.timecodeToSeconds(recording.duration);
-            await this.setStateAsync("recording.duration", duration, true);
+            await this.setStateAsync('recording.duration', duration, true);
         }
         // Get remaining disk space from first disk if available
         const disks = recording.disks;
         if (disks) {
             for (const disk of Object.values(disks)) {
                 if (disk && disk.recordingTimeAvailable !== undefined) {
-                    await this.setStateAsync("recording.remainingDiskSpace", disk.recordingTimeAvailable, true);
+                    await this.setStateAsync('recording.remainingDiskSpace', disk.recordingTimeAvailable, true);
                     break;
                 }
             }
@@ -1179,14 +2034,18 @@ class AtemAdapter extends utils.Adapter {
     }
 
     private async updateMediaPlayerStates(): Promise<void> {
-        if (!this.atem?.state?.media?.players) return;
+        if (!this.atem?.state?.media?.players) {
+            return;
+        }
 
         for (let i = 0; i < this.atem.state.media.players.length && i < this.capabilities.mediaPlayers; i++) {
             const mp = this.atem.state.media.players[i];
             if (mp) {
                 await this.setStateAsync(`mediaPlayer${i}.sourceType`, mp.sourceType || 1, true);
                 await this.setStateAsync(`mediaPlayer${i}.stillIndex`, mp.stillIndex || 0, true);
-                await this.setStateAsync(`mediaPlayer${i}.clipIndex`, mp.clipIndex || 0, true);
+                if (this.capabilities.mediaClips > 0) {
+                    await this.setStateAsync(`mediaPlayer${i}.clipIndex`, mp.clipIndex || 0, true);
+                }
                 await this.setStateAsync(`mediaPlayer${i}.playing`, mp.playing || false, true);
                 await this.setStateAsync(`mediaPlayer${i}.loop`, mp.loop || false, true);
                 await this.setStateAsync(`mediaPlayer${i}.atBeginning`, mp.atBeginning || false, true);
@@ -1195,15 +2054,17 @@ class AtemAdapter extends utils.Adapter {
     }
 
     private async updateMacroStates(): Promise<void> {
-        if (!this.atem?.state?.macro) return;
+        if (!this.atem?.state?.macro) {
+            return;
+        }
 
         // Update macro player state
         const player = this.atem.state.macro.macroPlayer;
         if (player) {
-            await this.setStateAsync("macros.isRunning", player.isRunning || false, true);
-            await this.setStateAsync("macros.isWaiting", player.isWaiting || false, true);
-            await this.setStateAsync("macros.loop", player.loop || false, true);
-            await this.setStateAsync("macros.runningIndex", player.macroIndex || 0, true);
+            await this.setStateAsync('macros.isRunning', player.isRunning || false, true);
+            await this.setStateAsync('macros.isWaiting', player.isWaiting || false, true);
+            await this.setStateAsync('macros.loop', player.loop || false, true);
+            await this.setStateAsync('macros.runningIndex', player.macroIndex || 0, true);
         }
 
         // Update macro slot properties (names and used status)
@@ -1213,19 +2074,21 @@ class AtemAdapter extends utils.Adapter {
             for (const [index, props] of Object.entries(macroProps)) {
                 if (props) {
                     const slotIndex = parseInt(index);
-                    await this.setStateAsync(`macros.slots.${slotIndex}.name`, props.name || "", true);
+                    await this.setStateAsync(`macros.slots.${slotIndex}.name`, props.name || '', true);
                     await this.setStateAsync(`macros.slots.${slotIndex}.isUsed`, props.isUsed || false, true);
                     if (props.isUsed) {
                         recordedCount++;
                     }
                 }
             }
-            await this.setStateAsync("macros.recordedCount", recordedCount, true);
+            await this.setStateAsync('macros.recordedCount', recordedCount, true);
         }
     }
 
     private async updateTallyStates(): Promise<void> {
-        if (!this.atem?.state?.video?.mixEffects) return;
+        if (!this.atem?.state?.video?.mixEffects) {
+            return;
+        }
 
         const programInputs: number[] = [];
         const previewInputs: number[] = [];
@@ -1242,38 +2105,42 @@ class AtemAdapter extends utils.Adapter {
             }
         }
 
-        await this.setStateAsync("tally.programInputs", JSON.stringify(programInputs), true);
-        await this.setStateAsync("tally.previewInputs", JSON.stringify(previewInputs), true);
+        await this.setStateAsync('tally.programInputs', JSON.stringify(programInputs), true);
+        await this.setStateAsync('tally.previewInputs', JSON.stringify(previewInputs), true);
     }
 
     private async updateInputStates(): Promise<void> {
-        if (!this.atem?.state?.inputs) return;
+        if (!this.atem?.state?.inputs) {
+            return;
+        }
 
         for (const [inputId, input] of Object.entries(this.atem.state.inputs)) {
-            if (!input) continue;
+            if (!input) {
+                continue;
+            }
 
             const stateId = `inputs.input${inputId}`;
 
             await this.setObjectNotExistsAsync(stateId, {
-                type: "channel",
+                type: 'channel',
                 common: { name: input.longName || `Input ${inputId}` },
                 native: {},
             });
 
             const inputStates = [
-                { id: "shortName", value: input.shortName || "" },
-                { id: "longName", value: input.longName || "" },
-                { id: "inputId", value: parseInt(inputId) },
-                { id: "portType", value: input.externalPortType || 0 },
+                { id: 'shortName', value: input.shortName || '' },
+                { id: 'longName', value: input.longName || '' },
+                { id: 'inputId', value: parseInt(inputId) },
+                { id: 'portType', value: input.externalPortType || 0 },
             ];
 
             for (const state of inputStates) {
                 await this.setObjectNotExistsAsync(`${stateId}.${state.id}`, {
-                    type: "state",
+                    type: 'state',
                     common: {
-                        name: state.id.charAt(0).toUpperCase() + state.id.slice(1).replace(/([A-Z])/g, " $1"),
-                        type: typeof state.value as "string" | "number" | "boolean",
-                        role: "text",
+                        name: state.id.charAt(0).toUpperCase() + state.id.slice(1).replace(/([A-Z])/g, ' $1'),
+                        type: typeof state.value as 'string' | 'number' | 'boolean',
+                        role: 'text',
                         read: true,
                         write: false,
                     },
@@ -1288,29 +2155,31 @@ class AtemAdapter extends utils.Adapter {
         // Classic audio mixer inputs
         if (this.atem?.state?.audio?.channels) {
             for (const [inputId, channel] of Object.entries(this.atem.state.audio.channels)) {
-                if (!channel) continue;
+                if (!channel) {
+                    continue;
+                }
 
                 const stateId = `audio.inputs.input${inputId}`;
 
                 await this.setObjectNotExistsAsync(stateId, {
-                    type: "channel",
+                    type: 'channel',
                     common: { name: `Audio Input ${inputId}` },
                     native: {},
                 });
 
                 const channelStates = [
-                    { id: "gain", name: "Gain", type: "number" as const, value: channel.gain || 0, unit: "dB" },
-                    { id: "balance", name: "Balance", type: "number" as const, value: channel.balance || 0 },
-                    { id: "mixOption", name: "Mix Option", type: "number" as const, value: channel.mixOption || 0 },
+                    { id: 'gain', name: 'Gain', type: 'number' as const, value: channel.gain || 0, unit: 'dB' },
+                    { id: 'balance', name: 'Balance', type: 'number' as const, value: channel.balance || 0 },
+                    { id: 'mixOption', name: 'Mix Option', type: 'number' as const, value: channel.mixOption || 0 },
                 ];
 
                 for (const state of channelStates) {
                     await this.setObjectNotExistsAsync(`${stateId}.${state.id}`, {
-                        type: "state",
+                        type: 'state',
                         common: {
                             name: state.name,
                             type: state.type,
-                            role: "level",
+                            role: 'level',
                             read: true,
                             write: true,
                             unit: state.unit,
@@ -1329,43 +2198,48 @@ class AtemAdapter extends utils.Adapter {
 
     /**
      * Handle ATEM state changes
+     *
+     * @param pathToChange
      */
     private handleStateChanged(pathToChange: string[]): void {
-        const path = pathToChange.join(".");
+        const path = pathToChange.join('.');
         this.log.debug(`ATEM state changed: ${path}`);
 
         // Update specific states based on path
-        if (path.startsWith("video.mixEffects.")) {
+        if (path.startsWith('video.mixEffects.')) {
             const meIndex = parseInt(pathToChange[2]) || 0;
             this.updateMixEffectStates(meIndex);
-        } else if (path.startsWith("video.downstreamKeyers")) {
+        } else if (path.startsWith('video.downstreamKeyers')) {
             this.updateDSKStates();
-        } else if (path.startsWith("video.auxilliaries")) {
+        } else if (path.startsWith('video.auxilliaries')) {
             this.updateAuxStates();
-        } else if (path.startsWith("audio") || path.startsWith("fairlight")) {
+        } else if (path.startsWith('audio') || path.startsWith('fairlight')) {
             this.updateAudioStates();
-        } else if (path.startsWith("colorGenerators")) {
+        } else if (path.startsWith('colorGenerators')) {
             this.updateColorGeneratorStates();
-        } else if (path.startsWith("streaming")) {
+        } else if (path.startsWith('streaming')) {
             this.updateStreamingStates();
-        } else if (path.startsWith("recording")) {
+        } else if (path.startsWith('recording')) {
             this.updateRecordingStates();
-        } else if (path.startsWith("media.players")) {
+        } else if (path.startsWith('media.players')) {
             this.updateMediaPlayerStates();
-        } else if (path.startsWith("macro")) {
+        } else if (path.startsWith('macro')) {
             this.updateMacroStates();
-        } else if (path.startsWith("inputs")) {
+        } else if (path.startsWith('inputs')) {
             this.updateInputStates();
         }
 
         // Always update tally on video changes
-        if (path.startsWith("video")) {
+        if (path.startsWith('video')) {
             this.updateTallyStates();
         }
     }
 
     /**
      * Handle state changes from ioBroker (user commands)
+     *
+     * @param id
+     * @param state
      */
     private async onStateChange(id: string, state: ioBroker.State | null | undefined): Promise<void> {
         if (!state || state.ack) {
@@ -1373,11 +2247,11 @@ class AtemAdapter extends utils.Adapter {
         }
 
         if (!this.atem || this.atem.status !== AtemConnectionStatus.CONNECTED) {
-            this.log.warn("Cannot process state change - not connected to ATEM");
+            this.log.warn('Cannot process state change - not connected to ATEM');
             return;
         }
 
-        const stateId = id.split(".").slice(2).join(".");
+        const stateId = id.split('.').slice(2).join('.');
         this.log.debug(`State change: ${stateId} = ${state.val}`);
 
         try {
@@ -1389,98 +2263,76 @@ class AtemAdapter extends utils.Adapter {
 
     /**
      * Process commands sent via state changes
+     *
+     * @param stateId
+     * @param value
      */
     private async processCommand(stateId: string, value: ioBroker.StateValue): Promise<void> {
-        if (!this.atem) return;
+        if (!this.atem) {
+            return;
+        }
 
         // Parse the state path
-        const parts = stateId.split(".");
+        const parts = stateId.split('.');
 
         // Commands
-        if (stateId === "commands.cut") {
+        if (stateId === 'commands.cut') {
             await this.atem.cut(0);
-            this.log.info("Executed CUT");
-        } else if (stateId === "commands.auto") {
+            this.log.info('Executed CUT');
+        } else if (stateId === 'commands.auto') {
             await this.atem.autoTransition(0);
-            this.log.info("Executed AUTO transition");
-        } else if (stateId === "commands.ftb") {
+            this.log.info('Executed AUTO transition');
+        } else if (stateId === 'commands.ftb') {
             await this.atem.fadeToBlack(0);
-            this.log.info("Executed Fade to Black");
-        }
-
-        // Mix Effect controls
-        else if (parts[0].startsWith("me")) {
+            this.log.info('Executed Fade to Black');
+        } else if (parts[0].startsWith('me') && !parts[0].startsWith('media')) {
             const meIndex = parseInt(parts[0].substring(2)) || 0;
             await this.processMECommand(meIndex, parts.slice(1), value);
-        }
-
-        // Downstream Keyers
-        else if (parts[0].startsWith("dsk")) {
+        } else if (parts[0].startsWith('dsk')) {
             const dskIndex = parseInt(parts[0].substring(3)) || 0;
             await this.processDSKCommand(dskIndex, parts[1], value);
-        }
-
-        // Auxiliary outputs
-        else if (parts[0].startsWith("aux")) {
+        } else if (parts[0].startsWith('aux')) {
             const auxIndex = parseInt(parts[0].substring(3)) || 0;
-            if (parts[1] === "source") {
+            if (parts[1] === 'source') {
                 await this.atem.setAuxSource(Number(value), auxIndex);
                 this.log.info(`Set Aux ${auxIndex + 1} source to ${value}`);
             }
-        }
-
-        // Audio
-        else if (parts[0] === "audio") {
+        } else if (parts[0] === 'audio') {
             await this.processAudioCommand(parts.slice(1), value);
-        }
-
-        // Color Generators
-        else if (parts[0].startsWith("colorGenerator")) {
+        } else if (parts[0].startsWith('colorGenerator')) {
             const cgIndex = parseInt(parts[0].substring(14)) || 0;
             await this.processColorGeneratorCommand(cgIndex, parts[1], value);
-        }
-
-        // Streaming
-        else if (stateId === "streaming.start") {
+        } else if (stateId === 'streaming.start') {
             await this.atem.startStreaming();
-            this.log.info("Started streaming");
-        } else if (stateId === "streaming.stop") {
+            this.log.info('Started streaming');
+        } else if (stateId === 'streaming.stop') {
             await this.atem.stopStreaming();
-            this.log.info("Stopped streaming");
-        }
-
-        // Recording
-        else if (stateId === "recording.start") {
+            this.log.info('Stopped streaming');
+        } else if (stateId === 'recording.start') {
             await this.atem.startRecording();
-            this.log.info("Started recording");
-        } else if (stateId === "recording.stop") {
+            this.log.info('Started recording');
+        } else if (stateId === 'recording.stop') {
             await this.atem.stopRecording();
-            this.log.info("Stopped recording");
-        } else if (stateId === "recording.switchDisk") {
+            this.log.info('Stopped recording');
+        } else if (stateId === 'recording.switchDisk') {
             await this.atem.switchRecordingDisk();
-            this.log.info("Switched recording disk");
-        }
-
-        // Media Players
-        else if (parts[0].startsWith("mediaPlayer")) {
+            this.log.info('Switched recording disk');
+        } else if (parts[0].startsWith('mediaPlayer')) {
             const mpIndex = parseInt(parts[0].substring(11)) || 0;
             await this.processMediaPlayerCommand(mpIndex, parts[1], value);
-        }
-
-        // Macros
-        else if (stateId === "macros.run") {
+        } else if (stateId === 'macros.run') {
             await this.atem.macroRun(Number(value));
             this.log.info(`Running macro ${value}`);
-        } else if (stateId === "macros.stop") {
+        } else if (stateId === 'macros.stop') {
             await this.atem.macroStop();
-            this.log.info("Stopped macro");
-        } else if (stateId === "macros.continue") {
+            this.log.info('Stopped macro');
+        } else if (stateId === 'macros.continue') {
             await this.atem.macroContinue();
-            this.log.info("Continued macro");
-        } else if (stateId === "macros.loop") {
+            this.log.info('Continued macro');
+        } else if (stateId === 'macros.loop') {
             await this.atem.macroSetLoop(Boolean(value));
             this.log.info(`Set macro loop: ${value}`);
-        } else if (parts[0] === "macros" && parts[1] === "slots" && parts[3] === "trigger") {
+        } else if (parts[0] === 'macros' && parts[1] === 'slots' && parts[3] === 'trigger') {
             // Handle macros.slots.X.trigger
             const macroIndex = parseInt(parts[2]);
             if (!isNaN(macroIndex) && macroIndex >= 0 && macroIndex <= 99) {
@@ -1491,144 +2343,244 @@ class AtemAdapter extends utils.Adapter {
     }
 
     private async processMECommand(meIndex: number, parts: string[], value: ioBroker.StateValue): Promise<void> {
-        if (!this.atem) return;
+        if (!this.atem) {
+            return;
+        }
 
-        if (parts[0] === "programInput") {
+        if (parts[0] === 'programInput') {
             await this.atem.changeProgramInput(Number(value), meIndex);
             this.log.info(`Set ME${meIndex + 1} program input to ${value}`);
-        } else if (parts[0] === "previewInput") {
+        } else if (parts[0] === 'previewInput') {
             await this.atem.changePreviewInput(Number(value), meIndex);
             this.log.info(`Set ME${meIndex + 1} preview input to ${value}`);
-        } else if (parts[0] === "transitionPosition") {
+        } else if (parts[0] === 'transitionPosition') {
             await this.atem.setTransitionPosition(Number(value), meIndex);
-        } else if (parts[0] === "transition") {
-            if (parts[1] === "style") {
+        } else if (parts[0] === 'transition') {
+            if (parts[1] === 'style') {
                 await this.atem.setTransitionStyle({ nextStyle: Number(value) }, meIndex);
                 this.log.info(`Set ME${meIndex + 1} transition style to ${value}`);
-            } else if (parts[1] === "mixRate") {
+            } else if (parts[1] === 'mixRate') {
                 await this.atem.setMixTransitionSettings({ rate: Number(value) }, meIndex);
                 this.log.info(`Set ME${meIndex + 1} mix rate to ${value}`);
-            } else if (parts[1] === "dipRate") {
+            } else if (parts[1] === 'dipRate') {
                 await this.atem.setDipTransitionSettings({ rate: Number(value) }, meIndex);
                 this.log.info(`Set ME${meIndex + 1} dip rate to ${value}`);
-            } else if (parts[1] === "dipSource") {
+            } else if (parts[1] === 'dipSource') {
                 await this.atem.setDipTransitionSettings({ input: Number(value) }, meIndex);
                 this.log.info(`Set ME${meIndex + 1} dip source to ${value}`);
-            } else if (parts[1] === "wipeRate") {
+            } else if (parts[1] === 'wipeRate') {
                 await this.atem.setWipeTransitionSettings({ rate: Number(value) }, meIndex);
                 this.log.info(`Set ME${meIndex + 1} wipe rate to ${value}`);
-            } else if (parts[1] === "wipePattern") {
+            } else if (parts[1] === 'wipePattern') {
                 await this.atem.setWipeTransitionSettings({ pattern: Number(value) }, meIndex);
                 this.log.info(`Set ME${meIndex + 1} wipe pattern to ${value}`);
-            } else if (parts[1] === "dveRate") {
+            } else if (parts[1] === 'dveRate') {
                 await this.atem.setDVETransitionSettings({ rate: Number(value) }, meIndex);
                 this.log.info(`Set ME${meIndex + 1} DVE rate to ${value}`);
             }
-        } else if (parts[0] === "fadeToBlack" && parts[1] === "rate") {
+        } else if (parts[0] === 'fadeToBlack' && parts[1] === 'rate') {
             await this.atem.setFadeToBlackRate(Number(value), meIndex);
             this.log.info(`Set ME${meIndex + 1} FTB rate to ${value}`);
-        } else if (parts[0].startsWith("usk")) {
+        } else if (parts[0].startsWith('usk')) {
             const uskIndex = parseInt(parts[0].substring(3)) || 0;
             await this.processUSKCommand(meIndex, uskIndex, parts[1], value);
         }
     }
 
-    private async processUSKCommand(meIndex: number, uskIndex: number, property: string, value: ioBroker.StateValue): Promise<void> {
-        if (!this.atem) return;
+    private async processUSKCommand(
+        meIndex: number,
+        uskIndex: number,
+        property: string,
+        value: ioBroker.StateValue,
+    ): Promise<void> {
+        if (!this.atem) {
+            return;
+        }
 
-        if (property === "onAir") {
+        if (property === 'onAir') {
             await this.atem.setUpstreamKeyerOnAir(Boolean(value), meIndex, uskIndex);
             this.log.info(`Set ME${meIndex + 1} USK${uskIndex + 1} on air: ${value}`);
-        } else if (property === "type") {
+        } else if (property === 'type') {
             await this.atem.setUpstreamKeyerType({ mixEffectKeyType: Number(value) }, meIndex, uskIndex);
             this.log.info(`Set ME${meIndex + 1} USK${uskIndex + 1} type: ${value}`);
-        } else if (property === "fillSource") {
+        } else if (property === 'fillSource') {
             await this.atem.setUpstreamKeyerFillSource(Number(value), meIndex, uskIndex);
             this.log.info(`Set ME${meIndex + 1} USK${uskIndex + 1} fill source: ${value}`);
-        } else if (property === "keySource") {
+        } else if (property === 'keySource') {
             await this.atem.setUpstreamKeyerCutSource(Number(value), meIndex, uskIndex);
             this.log.info(`Set ME${meIndex + 1} USK${uskIndex + 1} key source: ${value}`);
         }
     }
 
     private async processDSKCommand(dskIndex: number, property: string, value: ioBroker.StateValue): Promise<void> {
-        if (!this.atem) return;
+        if (!this.atem) {
+            return;
+        }
 
-        if (property === "onAir") {
+        if (property === 'onAir') {
             await this.atem.setDownstreamKeyOnAir(Boolean(value), dskIndex);
             this.log.info(`Set DSK${dskIndex + 1} on air: ${value}`);
-        } else if (property === "tie") {
+        } else if (property === 'tie') {
             await this.atem.setDownstreamKeyTie(Boolean(value), dskIndex);
             this.log.info(`Set DSK${dskIndex + 1} tie: ${value}`);
-        } else if (property === "rate") {
+        } else if (property === 'rate') {
             await this.atem.setDownstreamKeyRate(Number(value), dskIndex);
             this.log.info(`Set DSK${dskIndex + 1} rate: ${value}`);
-        } else if (property === "auto") {
+        } else if (property === 'auto') {
             await this.atem.autoDownstreamKey(dskIndex);
             this.log.info(`Auto DSK${dskIndex + 1}`);
-        } else if (property === "fillSource") {
+        } else if (property === 'fillSource') {
             await this.atem.setDownstreamKeyFillSource(Number(value), dskIndex);
             this.log.info(`Set DSK${dskIndex + 1} fill source: ${value}`);
-        } else if (property === "keySource") {
+        } else if (property === 'keySource') {
             await this.atem.setDownstreamKeyCutSource(Number(value), dskIndex);
             this.log.info(`Set DSK${dskIndex + 1} key source: ${value}`);
         }
     }
 
     private async processAudioCommand(parts: string[], value: ioBroker.StateValue): Promise<void> {
-        if (!this.atem) return;
+        if (!this.atem) {
+            return;
+        }
 
-        if (parts[0] === "master") {
-            if (parts[1] === "gain") {
+        if (parts[0] === 'master') {
+            if (parts[1] === 'gain') {
                 await this.atem.setClassicAudioMixerMasterProps({ gain: Number(value) });
                 this.log.info(`Set master audio gain: ${value}`);
-            } else if (parts[1] === "balance") {
+            } else if (parts[1] === 'balance') {
                 await this.atem.setClassicAudioMixerMasterProps({ balance: Number(value) });
                 this.log.info(`Set master audio balance: ${value}`);
+            } else if (parts[1] === 'afv') {
+                // Handle both Classic and Fairlight audio
+                if (this.capabilities.hasFairlightAudio && this.atem.state?.fairlight?.master) {
+                    await this.atem.setFairlightAudioMixerMasterProps({ followFadeToBlack: Boolean(value) });
+                    this.log.info(`Set Fairlight AFV (Audio Follow Video): ${value}`);
+                } else {
+                    await this.atem.setClassicAudioMixerMasterProps({ followFadeToBlack: Boolean(value) });
+                    this.log.info(`Set Classic AFV (Audio Follow Video): ${value}`);
+                }
+            } else if (parts[1] === 'afvCrossfade') {
+                await this.atem.setClassicAudioMixerProps({
+                    audioFollowVideo: Boolean(value),
+                });
+                this.log.info(`Set AFV Crossfade Transition: ${value}`);
             }
-        } else if (parts[0] === "inputs" && parts[1].startsWith("input")) {
+        } else if (parts[0] === 'monitor') {
+            if (this.capabilities.hasFairlightAudio) {
+                // Fairlight monitor controls (simplified - only gain and mute)
+                const props: any = {};
+                if (parts[1] === 'gain') {
+                    props.gain = Number(value);
+                } else if (parts[1] === 'mute') {
+                    props.inputMasterMuted = Boolean(value);
+                }
+
+                if (Object.keys(props).length > 0) {
+                    await this.atem.setFairlightAudioMixerMonitorProps(props);
+                    this.log.info(`Set Fairlight monitor ${parts[1]}: ${value}`);
+                }
+            } else {
+                // Classic audio monitor controls (full set)
+                const props: any = {};
+                if (parts[1] === 'enabled') {
+                    props.enabled = Boolean(value);
+                } else if (parts[1] === 'gain') {
+                    props.gain = Number(value);
+                } else if (parts[1] === 'mute') {
+                    props.mute = Boolean(value);
+                } else if (parts[1] === 'solo') {
+                    props.solo = Boolean(value);
+                } else if (parts[1] === 'dim') {
+                    props.dim = Boolean(value);
+                }
+
+                if (Object.keys(props).length > 0) {
+                    await this.atem.setClassicAudioMixerMonitorProps(props);
+                    this.log.info(`Set Classic monitor ${parts[1]}: ${value}`);
+                }
+            }
+        } else if (parts[0] === 'commands' && parts[1] === 'resetPeaks') {
+            if (this.capabilities.hasFairlightAudio) {
+                // Reset all Fairlight peaks
+                await this.atem.setFairlightAudioMixerResetPeaks({
+                    all: true,
+                    master: true,
+                });
+                this.log.info('Reset all Fairlight audio peaks');
+            } else {
+                // Reset all Classic audio peaks
+                await this.atem.setClassicAudioResetPeaks({
+                    all: true,
+                    master: true,
+                });
+                this.log.info('Reset all Classic audio peaks');
+            }
+            // Reset button state back to false
+            await this.setStateAsync('audio.commands.resetPeaks', false, true);
+        } else if (parts[0] === 'inputs' && parts[1].startsWith('input')) {
             const inputId = parseInt(parts[1].substring(5));
-            if (parts[2] === "gain") {
+            if (parts[2] === 'gain') {
                 await this.atem.setClassicAudioMixerInputProps(inputId, { gain: Number(value) });
                 this.log.info(`Set audio input ${inputId} gain: ${value}`);
-            } else if (parts[2] === "balance") {
+            } else if (parts[2] === 'balance') {
                 await this.atem.setClassicAudioMixerInputProps(inputId, { balance: Number(value) });
                 this.log.info(`Set audio input ${inputId} balance: ${value}`);
-            } else if (parts[2] === "mixOption") {
+            } else if (parts[2] === 'mixOption') {
                 await this.atem.setClassicAudioMixerInputProps(inputId, { mixOption: Number(value) });
                 this.log.info(`Set audio input ${inputId} mix option: ${value}`);
             }
         }
     }
 
-    private async processColorGeneratorCommand(cgIndex: number, property: string, value: ioBroker.StateValue): Promise<void> {
-        if (!this.atem) return;
+    private async processColorGeneratorCommand(
+        cgIndex: number,
+        property: string,
+        value: ioBroker.StateValue,
+    ): Promise<void> {
+        if (!this.atem) {
+            return;
+        }
 
         const currentCg = this.atem.state?.colorGenerators?.[cgIndex];
-        const hue = property === "hue" ? Number(value) : (currentCg?.hue || 0);
-        const saturation = property === "saturation" ? Number(value) : (currentCg?.saturation || 0);
-        const luma = property === "luminance" ? Number(value) : (currentCg?.luma || 0);
+        const hue = property === 'hue' ? Number(value) : currentCg?.hue || 0;
+        const saturation = property === 'saturation' ? Number(value) : currentCg?.saturation || 0;
+        const luma = property === 'luminance' ? Number(value) : currentCg?.luma || 0;
 
         await this.atem.setColorGeneratorColour({ hue, saturation, luma }, cgIndex);
         this.log.info(`Set color generator ${cgIndex + 1} ${property}: ${value}`);
     }
 
-    private async processMediaPlayerCommand(mpIndex: number, property: string, value: ioBroker.StateValue): Promise<void> {
-        if (!this.atem) return;
+    private async processMediaPlayerCommand(
+        mpIndex: number,
+        property: string,
+        value: ioBroker.StateValue,
+    ): Promise<void> {
+        if (!this.atem) {
+            return;
+        }
 
-        if (property === "sourceType") {
-            await this.atem.setMediaPlayerSource({ sourceType: Number(value) }, mpIndex);
+        if (property === 'sourceType') {
+            const newType = Number(value);
+            if (newType === 2 && this.capabilities.mediaClips === 0) {
+                this.log.warn(`Media player ${mpIndex + 1}: Clip source type not supported on this model`);
+                return;
+            }
+            await this.atem.setMediaPlayerSource({ sourceType: newType }, mpIndex);
             this.log.info(`Set media player ${mpIndex + 1} source type: ${value}`);
-        } else if (property === "stillIndex") {
-            await this.atem.setMediaPlayerSource({ stillIndex: Number(value) }, mpIndex);
+        } else if (property === 'stillIndex') {
+            await this.atem.setMediaPlayerSource({ sourceType: 1, stillIndex: Number(value) }, mpIndex);
             this.log.info(`Set media player ${mpIndex + 1} still index: ${value}`);
-        } else if (property === "clipIndex") {
-            await this.atem.setMediaPlayerSource({ clipIndex: Number(value) }, mpIndex);
+        } else if (property === 'clipIndex') {
+            if (this.capabilities.mediaClips === 0) {
+                this.log.warn(`Media player ${mpIndex + 1}: Clips not supported on this model`);
+                return;
+            }
+            await this.atem.setMediaPlayerSource({ sourceType: 2, clipIndex: Number(value) }, mpIndex);
             this.log.info(`Set media player ${mpIndex + 1} clip index: ${value}`);
-        } else if (property === "playing") {
+        } else if (property === 'playing') {
             await this.atem.setMediaPlayerSettings({ playing: Boolean(value) }, mpIndex);
             this.log.info(`Set media player ${mpIndex + 1} playing: ${value}`);
-        } else if (property === "loop") {
+        } else if (property === 'loop') {
             await this.atem.setMediaPlayerSettings({ loop: Boolean(value) }, mpIndex);
             this.log.info(`Set media player ${mpIndex + 1} loop: ${value}`);
         }
@@ -1636,6 +2588,8 @@ class AtemAdapter extends utils.Adapter {
 
     /**
      * Called when adapter is shutting down
+     *
+     * @param callback
      */
     private onUnload(callback: () => void): void {
         try {
