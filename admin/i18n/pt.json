@@ -1,0 +1,13 @@
+{
+    "ATEM IP Address": "Endereço IP ATEM",
+    "ATEM Model": "Modelo ATEM",
+    "Advanced Settings": "Configurações avançadas",
+    "Auto Detect": "Detecção automática",
+    "Connection Settings": "Configurações de conexão",
+    "IP address of the ATEM mixer": "Endereço IP do mixer ATEM",
+    "Interval for polling audio levels and other dynamic data": "Intervalo para pesquisa de níveis de áudio e outros dados dinâmicos",
+    "Poll Interval (ms)": "Intervalo de pesquisa (ms)",
+    "Reconnect Interval (ms)": "Intervalo de reconexão (ms)",
+    "Select your ATEM model or use Auto Detect": "Selecione seu modelo ATEM ou use a detecção automática",
+    "Time to wait before reconnecting after connection loss": "Tempo de espera antes de reconectar após perda de conexão"
+}

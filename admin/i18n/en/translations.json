@@ -1,6 +1,0 @@
-{
-    "ATEM IP Address": "ATEM IP Address",
-    "Reconnect Interval (ms)": "Reconnect Interval (ms)",
-    "IP address of the ATEM Mini Pro": "IP address of the ATEM Mini Pro",
-    "Time to wait before reconnecting after connection loss": "Time to wait before reconnecting after connection loss"
-}

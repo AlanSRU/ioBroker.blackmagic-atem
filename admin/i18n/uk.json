@@ -1,0 +1,13 @@
+{
+    "ATEM IP Address": "IP-адреса ATEM",
+    "ATEM Model": "Модель ATEM",
+    "Advanced Settings": "Розширені налаштування",
+    "Auto Detect": "Автоматичне визначення",
+    "Connection Settings": "Параметри підключення",
+    "IP address of the ATEM mixer": "IP-адреса мікшера ATEM",
+    "Interval for polling audio levels and other dynamic data": "Інтервал для опитування рівнів звуку та інших динамічних даних",
+    "Poll Interval (ms)": "Інтервал опитування (мс)",
+    "Reconnect Interval (ms)": "Інтервал повторного підключення (мс)",
+    "Select your ATEM model or use Auto Detect": "Виберіть свою модель ATEM або скористайтеся автовизначенням",
+    "Time to wait before reconnecting after connection loss": "Час очікування перед повторним підключенням після втрати з’єднання"
+}

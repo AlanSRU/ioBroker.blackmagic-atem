@@ -1,0 +1,13 @@
+{
+    "ATEM IP Address": "ATEM IP-adres",
+    "ATEM Model": "ATEM-model",
+    "Advanced Settings": "Geavanceerde instellingen",
+    "Auto Detect": "Automatische detectie",
+    "Connection Settings": "Verbindingsinstellingen",
+    "IP address of the ATEM mixer": "IP-adres van de ATEM-mixer",
+    "Interval for polling audio levels and other dynamic data": "Interval voor het opvragen van audioniveaus en andere dynamische gegevens",
+    "Poll Interval (ms)": "Poll-interval (ms)",
+    "Reconnect Interval (ms)": "Interval voor opnieuw verbinden (ms)",
+    "Select your ATEM model or use Auto Detect": "Selecteer uw ATEM-model of gebruik Auto Detect",
+    "Time to wait before reconnecting after connection loss": "Tijd om te wachten voordat u opnieuw verbinding maakt na verbindingsverlies"
+}

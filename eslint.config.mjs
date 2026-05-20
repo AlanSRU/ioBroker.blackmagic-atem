@@ -1,22 +1,8 @@
-import eslint from "@eslint/js";
-import tseslint from "typescript-eslint";
+import config from '@iobroker/eslint-config';
 
-export default tseslint.config(
-    eslint.configs.recommended,
-    ...tseslint.configs.recommended,
+export default [
+    ...config,
     {
-        languageOptions: {
-            parserOptions: {
-                project: "./tsconfig.json",
-            },
-        },
-        rules: {
-            "@typescript-eslint/no-unused-vars": ["error", { "argsIgnorePattern": "^_" }],
-            "@typescript-eslint/explicit-function-return-type": "off",
-            "@typescript-eslint/no-explicit-any": "warn",
-        },
+        ignores: ['build/**', 'admin/**', 'test/**', 'node_modules/**', '**/*.js', '**/*.mjs'],
     },
-    {
-        ignores: ["build/**", "node_modules/**"],
-    }
-);
+];
