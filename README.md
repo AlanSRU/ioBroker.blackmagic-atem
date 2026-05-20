@@ -1,14 +1,14 @@
-# ioBroker.atemmini
+# ioBroker.blackmagic-atem
 
-[![NPM version](https://img.shields.io/npm/v/iobroker.atemmini.svg)](https://www.npmjs.com/package/iobroker.atemmini)
-[![Downloads](https://img.shields.io/npm/dm/iobroker.atemmini.svg)](https://www.npmjs.com/package/iobroker.atemmini)
-![Number of Installations](https://iobroker.live/badges/atemmini-installed.svg)
-![Current version in stable repository](https://iobroker.live/badges/atemmini-stable.svg)
-[![License](https://img.shields.io/npm/l/iobroker.atemmini.svg)](LICENSE)
+[![NPM version](https://img.shields.io/npm/v/iobroker.blackmagic-atem.svg)](https://www.npmjs.com/package/iobroker.blackmagic-atem)
+[![Downloads](https://img.shields.io/npm/dm/iobroker.blackmagic-atem.svg)](https://www.npmjs.com/package/iobroker.blackmagic-atem)
+![Number of Installations](https://iobroker.live/badges/blackmagic-atem-installed.svg)
+![Current version in stable repository](https://iobroker.live/badges/blackmagic-atem-stable.svg)
+[![License](https://img.shields.io/npm/l/iobroker.blackmagic-atem.svg)](LICENSE)
 
-**Tests:** ![Test and Release](https://github.com/AlanSRU/iobroker.atemmini/workflows/Test%20and%20Release/badge.svg)
+**Tests:** ![Test and Release](https://github.com/AlanSRU/iobroker.blackmagic-atem/workflows/Test%20and%20Release/badge.svg)
 
-Control Blackmagic ATEM video mixers from ioBroker.
+Control Blackmagic ATEM video mixers from ioBroker — supports all 21+ ATEM models from Mini to Constellation 4K+.
 
 ## Description
 
@@ -41,7 +41,7 @@ This adapter controls Blackmagic Design ATEM video mixers over the network. It u
 
 ## Installation
 
-Install via the ioBroker Admin UI: **Adapters → search for `atemmini` → install**.
+Install via the ioBroker Admin UI: **Adapters → search for `blackmagic-atem` → install**.
 
 ## Configuration
 
@@ -83,16 +83,16 @@ States are created conditionally based on detected/selected model capabilities. 
 
 ```javascript
 // Switch program to camera 1
-setState('atemmini.0.me0.programInput', 1);
+setState('blackmagic-atem.0.me0.programInput', 1);
 
 // Perform a cut
-setState('atemmini.0.commands.cut', true);
+setState('blackmagic-atem.0.commands.cut', true);
 
 // Start streaming (supported models only)
-setState('atemmini.0.streaming.start', true);
+setState('blackmagic-atem.0.streaming.start', true);
 
 // Run macro 5
-setState('atemmini.0.macros.run', 5);
+setState('blackmagic-atem.0.macros.run', 5);
 ```
 
 ## Input ID Reference
