@@ -1,130 +1,143 @@
 {
-    "common": {
-        "name": "blackmagic-atem",
-        "version": "0.2.0",
-        "news": {
-            "0.2.0": {
-                "en": "Added model selection, transition rates, auxiliary outputs, tally, audio per-input, color generators",
-                "de": "Modellauswahl, Übergangsraten, Aux-Ausgänge, Tally, Audio pro Eingang, Farbgeneratoren hinzugefügt",
-                "ru": "Добавлен выбор модели, скорость перехода, вспомогательные выходы, подсчет звука, аудио на вход, генераторы цвета.",
-                "pt": "Adicionada seleção de modelo, taxas de transição, saídas auxiliares, sinalização, áudio por entrada, geradores de cores",
-                "nl": "Modelselectie, overgangssnelheden, hulpuitgangen, telling, audio per ingang en kleurgeneratoren toegevoegd",
-                "fr": "Ajout de la sélection de modèles, des taux de transition, des sorties auxiliaires, du tally, de l'audio par entrée, des générateurs de couleurs",
-                "it": "Aggiunta selezione del modello, velocità di transizione, uscite ausiliarie, tally, audio per ingresso, generatori di colori",
-                "es": "Se agregó selección de modelo, tasas de transición, salidas auxiliares, tally, audio por entrada, generadores de color.",
-                "pl": "Dodano wybór modelu, współczynniki przejścia, wyjścia pomocnicze, licznik, dźwięk na wejście, generatory kolorów",
-                "uk": "Додано вибір моделі, частоти переходів, допоміжні виходи, підрахунок, аудіо на вхід, генератори кольорів",
-                "zh-cn": "添加了模型选择、转换速率、辅助输出、计数、每个输入的音频、颜色生成器"
-            },
-            "0.1.0": {
-                "en": "Initial release",
-                "de": "Erstveröffentlichung",
-                "ru": "Первоначальный выпуск",
-                "pt": "Lançamento inicial",
-                "nl": "Eerste release",
-                "fr": "Version initiale",
-                "it": "Rilascio iniziale",
-                "es": "Lanzamiento inicial",
-                "pl": "Pierwsze wydanie",
-                "uk": "Початковий випуск",
-                "zh-cn": "初次发布"
-            }
-        },
-        "titleLang": {
-            "en": "Blackmagic ATEM Video Mixer",
-            "de": "Blackmagic ATEM Videomixer",
-            "ru": "Видеомикшер Blackmagic ATEM",
-            "pt": "Mixer de Vídeo Blackmagic ATEM",
-            "nl": "Blackmagic ATEM Videomixer",
-            "fr": "Mélangeur vidéo Blackmagic ATEM",
-            "it": "Mixer video Blackmagic ATEM",
-            "es": "Mezclador de vídeo Blackmagic ATEM",
-            "pl": "Mikser wideo Blackmagic ATEM",
-            "uk": "Відеомікшер Blackmagic ATEM",
-            "zh-cn": "Blackmagic ATEM 视频切换台"
-        },
-        "desc": {
-            "en": "Control Blackmagic ATEM video mixers (Mini, Mini Pro, Television Studio, Constellation, and more)",
-            "de": "Steuerung von Blackmagic ATEM Videomixern (Mini, Mini Pro, Television Studio, Constellation und mehr)",
-            "ru": "Управление видеомикшерами Blackmagic ATEM (Mini, Mini Pro, Television Studio, Constellation и др.)",
-            "pt": "Controle os mixers de vídeo Blackmagic ATEM (Mini, Mini Pro, Television Studio, Constellation e mais)",
-            "nl": "Bedien Blackmagic ATEM videomixers (Mini, Mini Pro, Television Studio, Constellation en meer)",
-            "fr": "Contrôler les mélangeurs vidéo Blackmagic ATEM (Mini, Mini Pro, Television Studio, Constellation et plus)",
-            "it": "Controlla i mixer video Blackmagic ATEM (Mini, Mini Pro, Television Studio, Constellation e altri)",
-            "es": "Controla los mezcladores de vídeo Blackmagic ATEM (Mini, Mini Pro, Television Studio, Constellation y más)",
-            "pl": "Steruj mikserami wideo Blackmagic ATEM (Mini, Mini Pro, Television Studio, Constellation i więcej)",
-            "uk": "Керування відеомікшерами Blackmagic ATEM (Mini, Mini Pro, Television Studio, Constellation тощо)",
-            "zh-cn": "控制 Blackmagic ATEM 视频切换台 (Mini、Mini Pro、Television Studio、Constellation 等)"
-        },
-        "authors": [
-            "Alan Paris <alan.paris@scottish.rugby>"
-        ],
-        "keywords": [
-            "atem",
-            "blackmagic",
-            "video",
-            "mixer",
-            "streaming",
-            "broadcast"
-        ],
-        "licenseInformation": {
-            "license": "MIT",
-            "type": "free"
-        },
-        "platform": "Javascript/Node.js",
-        "icon": "blackmagic-atem.png",
-        "enabled": true,
-        "extIcon": "https://raw.githubusercontent.com/AlanSRU/ioBroker.blackmagic-atem/main/admin/blackmagic-atem.png",
-        "readme": "https://github.com/AlanSRU/ioBroker.blackmagic-atem/blob/main/README.md",
-        "loglevel": "info",
-        "tier": 3,
-        "mode": "daemon",
-        "type": "multimedia",
-        "compact": true,
-        "connectionType": "local",
-        "dataSource": "push",
-        "adminUI": {
-            "config": "json"
-        },
-        "dependencies": [
-            {
-                "js-controller": ">=6.0.11"
-            }
-        ],
-        "globalDependencies": [
-            {
-                "admin": ">=7.6.20"
-            }
-        ]
+  "common": {
+    "name": "blackmagic-atem",
+    "version": "0.2.1",
+    "news": {
+      "0.2.1": {
+        "en": "Initial publication to npm registry",
+        "de": "Erstveröffentlichung im Register npm",
+        "ru": "Первоначальная публикация в реестре npm",
+        "pt": "Publicação inicial no registo npm",
+        "nl": "Oorspronkelijke publicatie naar npm register",
+        "fr": "Publication initiale au registre npm",
+        "it": "Pubblicazione iniziale al registro npm",
+        "es": "Publicación inicial al registro npm",
+        "pl": "Początkowa publikacja do rejestru npm",
+        "uk": "Початкова публікація до реєстру npm",
+        "zh-cn": "初次向npm登记册公布"
+      },
+      "0.2.0": {
+        "en": "Added model selection, transition rates, auxiliary outputs, tally, audio per-input, color generators",
+        "de": "Modellauswahl, Übergangsraten, Aux-Ausgänge, Tally, Audio pro Eingang, Farbgeneratoren hinzugefügt",
+        "ru": "Добавлен выбор модели, скорость перехода, вспомогательные выходы, подсчет звука, аудио на вход, генераторы цвета.",
+        "pt": "Adicionada seleção de modelo, taxas de transição, saídas auxiliares, sinalização, áudio por entrada, geradores de cores",
+        "nl": "Modelselectie, overgangssnelheden, hulpuitgangen, telling, audio per ingang en kleurgeneratoren toegevoegd",
+        "fr": "Ajout de la sélection de modèles, des taux de transition, des sorties auxiliaires, du tally, de l'audio par entrée, des générateurs de couleurs",
+        "it": "Aggiunta selezione del modello, velocità di transizione, uscite ausiliarie, tally, audio per ingresso, generatori di colori",
+        "es": "Se agregó selección de modelo, tasas de transición, salidas auxiliares, tally, audio por entrada, generadores de color.",
+        "pl": "Dodano wybór modelu, współczynniki przejścia, wyjścia pomocnicze, licznik, dźwięk na wejście, generatory kolorów",
+        "uk": "Додано вибір моделі, частоти переходів, допоміжні виходи, підрахунок, аудіо на вхід, генератори кольорів",
+        "zh-cn": "添加了模型选择、转换速率、辅助输出、计数、每个输入的音频、颜色生成器"
+      },
+      "0.1.0": {
+        "en": "Initial release",
+        "de": "Erstveröffentlichung",
+        "ru": "Первоначальный выпуск",
+        "pt": "Lançamento inicial",
+        "nl": "Eerste release",
+        "fr": "Version initiale",
+        "it": "Rilascio iniziale",
+        "es": "Lanzamiento inicial",
+        "pl": "Pierwsze wydanie",
+        "uk": "Початковий випуск",
+        "zh-cn": "初次发布"
+      }
     },
-    "native": {
-        "host": "192.168.1.100",
-        "model": "auto",
-        "reconnectInterval": 5000,
-        "pollInterval": 1000
+    "titleLang": {
+      "en": "Blackmagic ATEM Video Mixer",
+      "de": "Blackmagic ATEM Videomixer",
+      "ru": "Видеомикшер Blackmagic ATEM",
+      "pt": "Mixer de Vídeo Blackmagic ATEM",
+      "nl": "Blackmagic ATEM Videomixer",
+      "fr": "Mélangeur vidéo Blackmagic ATEM",
+      "it": "Mixer video Blackmagic ATEM",
+      "es": "Mezclador de vídeo Blackmagic ATEM",
+      "pl": "Mikser wideo Blackmagic ATEM",
+      "uk": "Відеомікшер Blackmagic ATEM",
+      "zh-cn": "Blackmagic ATEM 视频切换台"
     },
-    "objects": [],
-    "instanceObjects": [
-        {
-            "_id": "info",
-            "type": "channel",
-            "common": {
-                "name": "Information"
-            },
-            "native": {}
-        },
-        {
-            "_id": "info.connection",
-            "type": "state",
-            "common": {
-                "role": "indicator.connected",
-                "name": "Device connection status",
-                "type": "boolean",
-                "read": true,
-                "write": false,
-                "def": false
-            },
-            "native": {}
-        }
+    "desc": {
+      "en": "Control Blackmagic ATEM video mixers (Mini, Mini Pro, Television Studio, Constellation, and more)",
+      "de": "Steuerung von Blackmagic ATEM Videomixern (Mini, Mini Pro, Television Studio, Constellation und mehr)",
+      "ru": "Управление видеомикшерами Blackmagic ATEM (Mini, Mini Pro, Television Studio, Constellation и др.)",
+      "pt": "Controle os mixers de vídeo Blackmagic ATEM (Mini, Mini Pro, Television Studio, Constellation e mais)",
+      "nl": "Bedien Blackmagic ATEM videomixers (Mini, Mini Pro, Television Studio, Constellation en meer)",
+      "fr": "Contrôler les mélangeurs vidéo Blackmagic ATEM (Mini, Mini Pro, Television Studio, Constellation et plus)",
+      "it": "Controlla i mixer video Blackmagic ATEM (Mini, Mini Pro, Television Studio, Constellation e altri)",
+      "es": "Controla los mezcladores de vídeo Blackmagic ATEM (Mini, Mini Pro, Television Studio, Constellation y más)",
+      "pl": "Steruj mikserami wideo Blackmagic ATEM (Mini, Mini Pro, Television Studio, Constellation i więcej)",
+      "uk": "Керування відеомікшерами Blackmagic ATEM (Mini, Mini Pro, Television Studio, Constellation тощо)",
+      "zh-cn": "控制 Blackmagic ATEM 视频切换台 (Mini、Mini Pro、Television Studio、Constellation 等)"
+    },
+    "authors": [
+      "Alan Paris <alan.paris@scottish.rugby>"
+    ],
+    "keywords": [
+      "atem",
+      "blackmagic",
+      "video",
+      "mixer",
+      "streaming",
+      "broadcast"
+    ],
+    "licenseInformation": {
+      "license": "MIT",
+      "type": "free"
+    },
+    "platform": "Javascript/Node.js",
+    "icon": "blackmagic-atem.png",
+    "enabled": true,
+    "extIcon": "https://raw.githubusercontent.com/AlanSRU/ioBroker.blackmagic-atem/main/admin/blackmagic-atem.png",
+    "readme": "https://github.com/AlanSRU/ioBroker.blackmagic-atem/blob/main/README.md",
+    "loglevel": "info",
+    "tier": 3,
+    "mode": "daemon",
+    "type": "multimedia",
+    "compact": true,
+    "connectionType": "local",
+    "dataSource": "push",
+    "adminUI": {
+      "config": "json"
+    },
+    "dependencies": [
+      {
+        "js-controller": ">=6.0.11"
+      }
+    ],
+    "globalDependencies": [
+      {
+        "admin": ">=7.6.20"
+      }
     ]
+  },
+  "native": {
+    "host": "192.168.1.100",
+    "model": "auto",
+    "reconnectInterval": 5000,
+    "pollInterval": 1000
+  },
+  "objects": [],
+  "instanceObjects": [
+    {
+      "_id": "info",
+      "type": "channel",
+      "common": {
+        "name": "Information"
+      },
+      "native": {}
+    },
+    {
+      "_id": "info.connection",
+      "type": "state",
+      "common": {
+        "role": "indicator.connected",
+        "name": "Device connection status",
+        "type": "boolean",
+        "read": true,
+        "write": false,
+        "def": false
+      },
+      "native": {}
+    }
+  ]
 }
