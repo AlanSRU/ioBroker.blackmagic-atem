@@ -6,7 +6,7 @@
 ![Current version in stable repository](https://iobroker.live/badges/blackmagic-atem-stable.svg)
 [![License](https://img.shields.io/npm/l/iobroker.blackmagic-atem.svg)](LICENSE)
 
-**Tests:** ![Test and Release](https://github.com/AlanSRU/iobroker.blackmagic-atem/workflows/Test%20and%20Release/badge.svg)
+**Tests:** ![Test and Release](https://github.com/AlanSRU/ioBroker.blackmagic-atem/workflows/Test%20and%20Release/badge.svg)
 
 Control Blackmagic ATEM video mixers from ioBroker — supports all 21+ ATEM models from Mini to Constellation 4K+.
 
