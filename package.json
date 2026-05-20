@@ -1,12 +1,12 @@
 {
-    "name": "iobroker.atemmini",
+    "name": "iobroker.blackmagic-atem",
     "version": "0.2.0",
     "description": "Control Blackmagic ATEM video mixers (Mini, Mini Pro, Television Studio, Constellation, and more)",
     "author": {
         "name": "Alan Paris",
         "email": "alan.paris@scottish.rugby"
     },
-    "homepage": "https://github.com/AlanSRU/iobroker.atemmini",
+    "homepage": "https://github.com/AlanSRU/iobroker.blackmagic-atem",
     "license": "MIT",
     "keywords": [
         "iobroker",
@@ -20,10 +20,10 @@
     ],
     "repository": {
         "type": "git",
-        "url": "git+https://github.com/AlanSRU/iobroker.atemmini.git"
+        "url": "git+https://github.com/AlanSRU/iobroker.blackmagic-atem.git"
     },
     "bugs": {
-        "url": "https://github.com/AlanSRU/iobroker.atemmini/issues"
+        "url": "https://github.com/AlanSRU/iobroker.blackmagic-atem/issues"
     },
     "engines": {
         "node": ">=20"

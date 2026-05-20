@@ -6,7 +6,7 @@
 
 ioBroker adapter for controlling Blackmagic ATEM video mixers. Supports 21+ model variants from Mini to Constellation 4K+ via capability-based state creation.
 
-**Base path:** `atemmini.0`
+**Base path:** `blackmagic-atem.0` (npm: `iobroker.blackmagic-atem`)
 **Protocol:** UDP via `atem-connection` library
 **Source:** `src/main.ts` (TypeScript, ~1,870 lines) → compiled to `build/main.js`
 **Build:** `npm run build` (TypeScript compilation)
