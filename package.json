@@ -6,7 +6,7 @@
         "name": "Alan Paris",
         "email": "alan.paris@scottish.rugby"
     },
-    "homepage": "https://github.com/AlanSRU/iobroker.blackmagic-atem",
+    "homepage": "https://github.com/AlanSRU/ioBroker.blackmagic-atem",
     "license": "MIT",
     "keywords": [
         "iobroker",
@@ -20,10 +20,10 @@
     ],
     "repository": {
         "type": "git",
-        "url": "git+https://github.com/AlanSRU/iobroker.blackmagic-atem.git"
+        "url": "git+https://github.com/AlanSRU/ioBroker.blackmagic-atem.git"
     },
     "bugs": {
-        "url": "https://github.com/AlanSRU/iobroker.blackmagic-atem/issues"
+        "url": "https://github.com/AlanSRU/ioBroker.blackmagic-atem/issues"
     },
     "engines": {
         "node": ">=20"
