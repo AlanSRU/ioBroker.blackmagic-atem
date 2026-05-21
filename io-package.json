@@ -1,8 +1,21 @@
 {
   "common": {
     "name": "blackmagic-atem",
-    "version": "0.2.2",
+    "version": "0.2.3",
     "news": {
+      "0.2.3": {
+        "en": "Bump minimum Node.js to 22 and CI matrix to 22/24 for ioBroker community submission compliance\nSet `common.noGit: true` so the gitignored `build/` tree does not trip the repochecker\nTrim `common.news` to only versions published to npm",
+        "de": "Mindestgröße Node.js bis 22 und CI-Matrix bis 22/24 für ioBroker Community Einreichung Compliance\nSetzen Sie `common.noGit: true`, so dass der gitignored `build/` Baum nicht den Repochecker\nTrim `common.news` zu nur Versionen veröffentlicht, um npm",
+        "ru": "Bump minimum Node.js to 22 и CI matrix to 22/24 для соответствия требованиям сообщества ioBroker\nУстановите «common.noGit: True», чтобы помеченное дерево «build/» не сбило репочекера\nОбрезка «common.news» только для версий, опубликованных на npm",
+        "pt": "Node.js mínimo Bump a 22 e matriz CI a 22/24 para o cumprimento da submissão da comunidade ioBroker\nDefinir `common.noGit: true` para que a árvore `build/` gitignored não tropece no repochecker\nTrim `common.news` para apenas versões publicadas no npm",
+        "nl": "Bump minimum Node.js naar 22 en CI matrix naar 22/24 voor ioBroker gemeenschap indiening naleving\nStel common.noGit in: waar dus de gitiignored boom gaat niet over de repochecker\nTrim common.news",
+        "fr": "Bump minimum Node.js à 22 et matrice d'IC à 22/24 pour la conformité à la soumission communautaire ioBroker\nSet `common.noGit: true` de sorte que l`arbre gitagnole `build/` ne trébuche pas le repochecker\nTrim `common.news` vers seulement les versions publiées à npm",
+        "it": "Bump minimo Node.js a 22 e CI matrice a 22/24 per ioBroker comunità di sottomissione conformità\nSet `common.noGit: true` in modo che il gitignored `build/` albero non trippa il repochecker\nTrim `common.news` a solo versioni pubblicate a npm",
+        "es": "Bump minimum Node.js to 22 and CI matriz to 22/24 for ioBroker community submission compliance\nSet `common.noGit: true` para que el árbol gitignored `build/` no viaje el repochecker\nTrim `common.news` a sólo versiones publicadas a npm",
+        "pl": "Przesunięcie minimum Node.js do 22 i matrycy CI do 22 / 24 dla przestrzegania przez społeczność jOBroker zasady składania wniosków\nUstaw 'commun.noGit: true', więc drzewo gitignored 'build /' nie przesuwa repochecker\nTrim \"common .news\" tylko wersji opublikowanych do npm",
+        "uk": "Bump мінімальний Node.js до 22 та CI матриця до 22/24 для дотримання вимог ioBroker\nНабір `common.noGit: true` так gitignored `build/`` Дерево не подорожує репочекер\nТрим `common.news` to only version by npm",
+        "zh-cn": "OBroker社区提交要求的最小节点js至22和CI矩阵至22/24\n设置“ common. noGit: true ” , 以便“ 建设/ ” 树不会绊倒重新检查器\nTrim \" common. news\" 仅发布至 npm 版本"
+      },
       "0.2.2": {
         "en": "Switched CI publish to npm trusted publishing (OIDC)",
         "de": "Geschaltet CI veröffentlichen zu npm Trusted Publishing (OIDC)",
