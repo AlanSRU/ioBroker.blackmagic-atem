@@ -36,7 +36,7 @@ This adapter controls Blackmagic Design ATEM video mixers over the network. It u
 
 - js-controller >= 6.0.11
 - ioBroker Admin >= 7.6.20
-- Node.js >= 20
+- Node.js >= 22
 - Blackmagic ATEM switcher with network connectivity
 
 ## Installation
@@ -123,10 +123,15 @@ The ATEM protocol has no authentication — keep ATEM devices on a trusted, priv
     ### __WORK IN PROGRESS__
 -->
 ### __WORK IN PROGRESS__
-- (Alan Paris) Modernise build/release tooling: bump to Node 20+, js-controller 6.0.11, admin 7.6.20
-- (Alan Paris) Switch to `@iobroker/eslint-config` flat config and `@alcalzone/release-script`
-- (Alan Paris) Add GitHub Actions composite test-and-release workflow with OIDC publishing
-- (Alan Paris) Add `mediaStills` / `mediaClips` to model capabilities for accurate media-bank sizing
+- (Alan Paris) Bump minimum Node.js to 22 and CI matrix to 22/24 for ioBroker community submission compliance
+- (Alan Paris) Set `common.noGit: true` so the gitignored `build/` tree does not trip the repochecker
+- (Alan Paris) Trim `common.news` to only versions published to npm
+
+### 0.2.2 (2026-05-20)
+- (Alan Paris) Switched CI publish to npm trusted publishing (OIDC)
+
+### 0.2.1 (2026-05-20)
+- (Alan Paris) Initial publication to npm registry
 
 ### 0.2.0 (2025-02-04)
 - (Alan Paris) Added model selection, transition rates, auxiliary outputs, tally, audio per-input, color generators
