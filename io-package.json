@@ -87,7 +87,7 @@
     "platform": "Javascript/Node.js",
     "icon": "blackmagic-atem.png",
     "enabled": true,
-    "noGit": true,
+    "nogit": true,
     "extIcon": "https://raw.githubusercontent.com/AlanSRU/ioBroker.blackmagic-atem/main/admin/blackmagic-atem.png",
     "readme": "https://github.com/AlanSRU/ioBroker.blackmagic-atem/blob/main/README.md",
     "loglevel": "info",
