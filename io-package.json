@@ -28,32 +28,6 @@
         "pl": "Początkowa publikacja do rejestru npm",
         "uk": "Початкова публікація до реєстру npm",
         "zh-cn": "初次向npm登记册公布"
-      },
-      "0.2.0": {
-        "en": "Added model selection, transition rates, auxiliary outputs, tally, audio per-input, color generators",
-        "de": "Modellauswahl, Übergangsraten, Aux-Ausgänge, Tally, Audio pro Eingang, Farbgeneratoren hinzugefügt",
-        "ru": "Добавлен выбор модели, скорость перехода, вспомогательные выходы, подсчет звука, аудио на вход, генераторы цвета.",
-        "pt": "Adicionada seleção de modelo, taxas de transição, saídas auxiliares, sinalização, áudio por entrada, geradores de cores",
-        "nl": "Modelselectie, overgangssnelheden, hulpuitgangen, telling, audio per ingang en kleurgeneratoren toegevoegd",
-        "fr": "Ajout de la sélection de modèles, des taux de transition, des sorties auxiliaires, du tally, de l'audio par entrée, des générateurs de couleurs",
-        "it": "Aggiunta selezione del modello, velocità di transizione, uscite ausiliarie, tally, audio per ingresso, generatori di colori",
-        "es": "Se agregó selección de modelo, tasas de transición, salidas auxiliares, tally, audio por entrada, generadores de color.",
-        "pl": "Dodano wybór modelu, współczynniki przejścia, wyjścia pomocnicze, licznik, dźwięk na wejście, generatory kolorów",
-        "uk": "Додано вибір моделі, частоти переходів, допоміжні виходи, підрахунок, аудіо на вхід, генератори кольорів",
-        "zh-cn": "添加了模型选择、转换速率、辅助输出、计数、每个输入的音频、颜色生成器"
-      },
-      "0.1.0": {
-        "en": "Initial release",
-        "de": "Erstveröffentlichung",
-        "ru": "Первоначальный выпуск",
-        "pt": "Lançamento inicial",
-        "nl": "Eerste release",
-        "fr": "Version initiale",
-        "it": "Rilascio iniziale",
-        "es": "Lanzamiento inicial",
-        "pl": "Pierwsze wydanie",
-        "uk": "Початковий випуск",
-        "zh-cn": "初次发布"
       }
     },
     "titleLang": {
@@ -100,6 +74,7 @@
     "platform": "Javascript/Node.js",
     "icon": "blackmagic-atem.png",
     "enabled": true,
+    "noGit": true,
     "extIcon": "https://raw.githubusercontent.com/AlanSRU/ioBroker.blackmagic-atem/main/admin/blackmagic-atem.png",
     "readme": "https://github.com/AlanSRU/ioBroker.blackmagic-atem/blob/main/README.md",
     "loglevel": "info",

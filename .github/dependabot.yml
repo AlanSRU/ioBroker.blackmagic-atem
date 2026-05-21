@@ -7,6 +7,10 @@ updates:
       open-pull-requests-limit: 15
       cooldown:
           default-days: 7
+      ignore:
+          # Keep @types/node aligned with engines.node — major bumps must be manual.
+          - dependency-name: '@types/node'
+            update-types: ['version-update:semver-major']
     - package-ecosystem: github-actions
       directory: /
       schedule:
