@@ -451,7 +451,7 @@ const MODEL_CAPABILITIES: Record<string, ModelCapabilities> = {
 
 class AtemAdapter extends utils.Adapter {
     private atem: Atem | null = null;
-    private reconnectTimeout: ReturnType<typeof setTimeout> | null = null;
+    private reconnectTimeout: ioBroker.Timeout | undefined = undefined;
     private isConnecting = false;
     private capabilities: ModelCapabilities = MODEL_CAPABILITIES.auto;
 
@@ -593,11 +593,14 @@ class AtemAdapter extends utils.Adapter {
             await this.deleteObjectWithChildren(`me${me}`);
         }
 
-        // Clean up extra USKs within valid MEs
+        // Clean up extra USKs within valid MEs, plus legacy flat states
         for (let me = 0; me < this.capabilities.mixEffectBlocks; me++) {
             for (let usk = this.capabilities.upstreamKeyers; usk < MAX_USKS; usk++) {
                 await this.deleteObjectWithChildren(`me${me}.usk${usk}`);
             }
+            // Legacy: older versions created a flat me{n}.transitionStyle;
+            // the current tree uses the nested me{n}.transition.style instead
+            await this.deleteObjectWithChildren(`me${me}.transitionStyle`);
         }
 
         // Clean up extra DSKs
@@ -761,7 +764,7 @@ class AtemAdapter extends utils.Adapter {
             common: {
                 name: 'Transition Style',
                 type: 'number',
-                role: 'value',
+                role: 'level',
                 read: true,
                 write: true,
                 states: { 0: 'Mix', 1: 'Dip', 2: 'Wipe', 3: 'DVE', 4: 'Sting' },
@@ -825,7 +828,7 @@ class AtemAdapter extends utils.Adapter {
             common: {
                 name: 'Wipe Pattern',
                 type: 'number',
-                role: 'value',
+                role: 'level',
                 read: true,
                 write: true,
                 states: {
@@ -922,7 +925,7 @@ class AtemAdapter extends utils.Adapter {
                 id: 'type',
                 name: 'Key Type',
                 type: 'number' as const,
-                role: 'value',
+                role: 'level',
                 write: true,
                 states: { 0: 'Luma', 1: 'Chroma', 2: 'Pattern', 3: 'DVE' },
             },
@@ -1401,7 +1404,7 @@ class AtemAdapter extends utils.Adapter {
             common: {
                 name: 'Source Type',
                 type: 'number',
-                role: 'value',
+                role: 'level',
                 read: true,
                 write: true,
                 states: sourceTypeStates,
@@ -1415,7 +1418,7 @@ class AtemAdapter extends utils.Adapter {
             common: {
                 name: 'Still Index',
                 type: 'number',
-                role: 'value',
+                role: 'level',
                 read: true,
                 write: true,
                 min: 0,
@@ -1431,7 +1434,7 @@ class AtemAdapter extends utils.Adapter {
                 common: {
                     name: 'Clip Index',
                     type: 'number',
-                    role: 'value',
+                    role: 'level',
                     read: true,
                     write: true,
                     min: 0,
@@ -1516,7 +1519,7 @@ class AtemAdapter extends utils.Adapter {
                 type: 'number' as const,
                 role: 'level',
                 write: true,
-                read: false,
+                read: true,
                 min: 0,
                 max: 99,
                 desc: 'Run macro by index (0-99)',
@@ -1732,14 +1735,14 @@ class AtemAdapter extends utils.Adapter {
 
     private scheduleReconnect(): void {
         if (this.reconnectTimeout) {
-            clearTimeout(this.reconnectTimeout);
+            this.clearTimeout(this.reconnectTimeout);
         }
 
         const interval = this.config.reconnectInterval || 5000;
         this.log.info(`Scheduling reconnect in ${interval}ms`);
 
-        this.reconnectTimeout = setTimeout(() => {
-            this.reconnectTimeout = null;
+        this.reconnectTimeout = this.setTimeout(() => {
+            this.reconnectTimeout = undefined;
             this.isConnecting = false;
             this.connectAtem();
         }, interval);
@@ -2128,10 +2131,10 @@ class AtemAdapter extends utils.Adapter {
             });
 
             const inputStates = [
-                { id: 'shortName', value: input.shortName || '' },
-                { id: 'longName', value: input.longName || '' },
-                { id: 'inputId', value: parseInt(inputId) },
-                { id: 'portType', value: input.externalPortType || 0 },
+                { id: 'shortName', value: input.shortName || '', role: 'text' },
+                { id: 'longName', value: input.longName || '', role: 'text' },
+                { id: 'inputId', value: parseInt(inputId), role: 'value' },
+                { id: 'portType', value: input.externalPortType || 0, role: 'value' },
             ];
 
             for (const state of inputStates) {
@@ -2140,7 +2143,7 @@ class AtemAdapter extends utils.Adapter {
                     common: {
                         name: state.id.charAt(0).toUpperCase() + state.id.slice(1).replace(/([A-Z])/g, ' $1'),
                         type: typeof state.value as 'string' | 'number' | 'boolean',
-                        role: 'text',
+                        role: state.role,
                         read: true,
                         write: false,
                     },
@@ -2594,8 +2597,8 @@ class AtemAdapter extends utils.Adapter {
     private onUnload(callback: () => void): void {
         try {
             if (this.reconnectTimeout) {
-                clearTimeout(this.reconnectTimeout);
-                this.reconnectTimeout = null;
+                this.clearTimeout(this.reconnectTimeout);
+                this.reconnectTimeout = undefined;
             }
 
             if (this.atem) {
