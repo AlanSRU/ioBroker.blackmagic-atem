@@ -646,7 +646,7 @@ class AtemAdapter extends utils.Adapter {
     /**
      * Delete an object and all its children recursively
      *
-     * @param objectId
+     * @param objectId Relative object id (without namespace) whose subtree should be removed
      */
     private async deleteObjectWithChildren(objectId: string): Promise<void> {
         try {
@@ -1677,7 +1677,7 @@ class AtemAdapter extends utils.Adapter {
 
             this.atem.on('disconnected', () => {
                 this.log.warn('Disconnected from ATEM');
-                this.setStateAsync('info.connection', false, true);
+                void this.setStateAsync('info.connection', false, true);
                 this.scheduleReconnect();
             });
 
@@ -1744,7 +1744,7 @@ class AtemAdapter extends utils.Adapter {
         this.reconnectTimeout = this.setTimeout(() => {
             this.reconnectTimeout = undefined;
             this.isConnecting = false;
-            this.connectAtem();
+            void this.connectAtem();
         }, interval);
     }
 
@@ -2202,7 +2202,7 @@ class AtemAdapter extends utils.Adapter {
     /**
      * Handle ATEM state changes
      *
-     * @param pathToChange
+     * @param pathToChange Path segments of the ATEM state that changed
      */
     private handleStateChanged(pathToChange: string[]): void {
         const path = pathToChange.join('.');
@@ -2211,38 +2211,38 @@ class AtemAdapter extends utils.Adapter {
         // Update specific states based on path
         if (path.startsWith('video.mixEffects.')) {
             const meIndex = parseInt(pathToChange[2]) || 0;
-            this.updateMixEffectStates(meIndex);
+            void this.updateMixEffectStates(meIndex);
         } else if (path.startsWith('video.downstreamKeyers')) {
-            this.updateDSKStates();
+            void this.updateDSKStates();
         } else if (path.startsWith('video.auxilliaries')) {
-            this.updateAuxStates();
+            void this.updateAuxStates();
         } else if (path.startsWith('audio') || path.startsWith('fairlight')) {
-            this.updateAudioStates();
+            void this.updateAudioStates();
         } else if (path.startsWith('colorGenerators')) {
-            this.updateColorGeneratorStates();
+            void this.updateColorGeneratorStates();
         } else if (path.startsWith('streaming')) {
-            this.updateStreamingStates();
+            void this.updateStreamingStates();
         } else if (path.startsWith('recording')) {
-            this.updateRecordingStates();
+            void this.updateRecordingStates();
         } else if (path.startsWith('media.players')) {
-            this.updateMediaPlayerStates();
+            void this.updateMediaPlayerStates();
         } else if (path.startsWith('macro')) {
-            this.updateMacroStates();
+            void this.updateMacroStates();
         } else if (path.startsWith('inputs')) {
-            this.updateInputStates();
+            void this.updateInputStates();
         }
 
         // Always update tally on video changes
         if (path.startsWith('video')) {
-            this.updateTallyStates();
+            void this.updateTallyStates();
         }
     }
 
     /**
      * Handle state changes from ioBroker (user commands)
      *
-     * @param id
-     * @param state
+     * @param id Full state id (with namespace) that changed
+     * @param state New state value, or null/undefined when the state was deleted
      */
     private async onStateChange(id: string, state: ioBroker.State | null | undefined): Promise<void> {
         if (!state || state.ack) {
@@ -2267,8 +2267,8 @@ class AtemAdapter extends utils.Adapter {
     /**
      * Process commands sent via state changes
      *
-     * @param stateId
-     * @param value
+     * @param stateId Relative state id (without namespace) being written
+     * @param value Value written to the state
      */
     private async processCommand(stateId: string, value: ioBroker.StateValue): Promise<void> {
         if (!this.atem) {
@@ -2592,7 +2592,7 @@ class AtemAdapter extends utils.Adapter {
     /**
      * Called when adapter is shutting down
      *
-     * @param callback
+     * @param callback Must be invoked once cleanup is complete to signal shutdown
      */
     private onUnload(callback: () => void): void {
         try {
@@ -2602,7 +2602,7 @@ class AtemAdapter extends utils.Adapter {
             }
 
             if (this.atem) {
-                this.atem.disconnect();
+                void this.atem.disconnect();
                 this.atem = null;
             }
 
