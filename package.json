@@ -1,6 +1,6 @@
 {
   "name": "iobroker.blackmagic-atem",
-  "version": "0.2.5",
+  "version": "0.2.6",
   "description": "Control Blackmagic ATEM video mixers (Mini, Mini Pro, Television Studio, Constellation, and more)",
   "author": {
     "name": "Alan Paris",

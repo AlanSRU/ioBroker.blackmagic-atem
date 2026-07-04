@@ -1,8 +1,21 @@
 {
   "common": {
     "name": "blackmagic-atem",
-    "version": "0.2.5",
+    "version": "0.2.6",
     "news": {
+      "0.2.6": {
+        "en": "Updated atem-connection to 3.9.0 and dev dependencies (@iobroker/types, rimraf)\nExtended tsconfig from @tsconfig/node22 for standardized type checking\nSwitched Dependabot to cron schedules to distribute update load",
+        "de": "atem-connection wurde auf Version 3.9.0 aktualisiert, inklusive der Entwicklungsabhängigkeiten (@iobroker/types, rimraf).\nErweiterte tsconfig-Datei von @tsconfig/node22 für standardisierte Typüberprüfung\nDependabot wurde auf Cron-Jobs umgestellt, um die Update-Last zu verteilen.",
+        "ru": "Обновлена версия atem-connection до 3.9.0 и добавлены зависимости для разработчиков (@iobroker/types, rimraf).\nРасширенная версия tsconfig из @tsconfig/node22 для стандартизированной проверки типов.\nПереключил Dependabot на планирование по расписанию cron для распределения нагрузки обновлений.",
+        "pt": "Atualizei o atem-connection para a versão 3.9.0 e as dependências de desenvolvimento (@iobroker/types, rimraf).\ntsconfig estendido de @tsconfig/node22 para verificação de tipos padronizada.\nConfigurei o Dependabot para usar agendamentos cron para distribuir a carga de atualizações.",
+        "nl": "Atem-connection bijgewerkt naar 3.9.0 en ontwikkelingsafhankelijkheden (@iobroker/types, rimraf)\nUitgebreide tsconfig van @tsconfig/node22 voor gestandaardiseerde typecontrole\nDependabot is overgeschakeld naar cron-schema's om de updatebelasting te verdelen.",
+        "fr": "Mise à jour d'atem-connection vers la version 3.9.0 et des dépendances de développement (@iobroker/types, rimraf)\ntsconfig étendu de @tsconfig/node22 pour une vérification de type standardisée\nDependabot utilise désormais des planifications cron pour répartir la charge de mise à jour.",
+        "it": "Aggiornata la connessione atem alla versione 3.9.0 e le dipendenze di sviluppo (@iobroker/types, rimraf).\ntsconfig esteso da @tsconfig/node22 per il controllo standardizzato dei tipi\nHo impostato Dependabot su pianificazioni cron per distribuire il carico degli aggiornamenti.",
+        "es": "Se actualizó atem-connection a la versión 3.9.0 y las dependencias de desarrollo (@iobroker/types, rimraf).\nSe extendió tsconfig desde @tsconfig/node22 para la comprobación de tipos estandarizada.\nSe cambió Dependabot a programaciones cron para distribuir la carga de actualizaciones.",
+        "pl": "Zaktualizowano atem-connection do wersji 3.9.0 i zależności dev (@iobroker/types, rimraf)\nRozszerzono tsconfig z @tsconfig/node22 w celu standaryzowanego sprawdzania typów\nPrzestawiono Dependabota na harmonogramy cron w celu rozłożenia obciążenia aktualizacji",
+        "uk": "Оновлено atem-connection до версії 3.9.0 та залежності від розробника (@iobroker/types, rimraf)\nРозширено tsconfig з @tsconfig/node22 для стандартизованої перевірки типів\nПереключено Dependabot на розклади cron для розподілу навантаження оновлень",
+        "zh-cn": "已将 atem-connection 更新至 3.9.0 版本，并更新了开发依赖项（@iobroker/types、rimraf）。\n来自 @tsconfig/node22 的扩展 tsconfig，用于标准化类型检查\n将 Dependabot 的更新负载切换为 cron 定时任务。"
+      },
       "0.2.5": {
         "en": "Resolved all ESLint warnings (unawaited promises, JSDoc parameter descriptions)",
         "de": "Alle ESLint-Warnungen (unerwartete Promises, JSDoc-Parameterbeschreibungen) wurden behoben.",
