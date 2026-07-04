@@ -122,6 +122,11 @@ The ATEM protocol has no authentication — keep ATEM devices on a trusted, priv
     Placeholder for the next version (at the beginning of the line):
     ### __WORK IN PROGRESS__
 -->
+### __WORK IN PROGRESS__
+- (Alan Paris) Updated atem-connection to 3.9.0 and dev dependencies (@iobroker/types, rimraf)
+- (Alan Paris) Extended tsconfig from @tsconfig/node22 for standardized type checking
+- (Alan Paris) Switched Dependabot to cron schedules to distribute update load
+
 ### 0.2.5 (2026-07-04)
 - (Alan Paris) Resolved all ESLint warnings (unawaited promises, JSDoc parameter descriptions)
 
