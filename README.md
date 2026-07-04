@@ -122,7 +122,7 @@ The ATEM protocol has no authentication — keep ATEM devices on a trusted, priv
     Placeholder for the next version (at the beginning of the line):
     ### __WORK IN PROGRESS__
 -->
-### __WORK IN PROGRESS__
+### 0.2.4 (2026-07-04)
 - (Alan Paris) Fixed state roles so writable transition, keyer and media-player selectors, macro run and input info states pass the ioBroker object checker
 - (Alan Paris) Removed the legacy flat `transitionStyle` state on upgrade
 - (Alan Paris) Use adapter-managed timers for the reconnect timeout
