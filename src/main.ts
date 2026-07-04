@@ -15,7 +15,6 @@ declare global {
             host: string;
             model: string;
             reconnectInterval: number;
-            pollInterval: number;
         }
     }
 }
@@ -640,6 +639,10 @@ class AtemAdapter extends utils.Adapter {
             await this.deleteObjectWithChildren('recording');
         }
 
+        // Legacy: older versions created audio.master.programOutGain, which was
+        // never wired to a command or device update; the master gain state covers it
+        await this.deleteObjectWithChildren('audio.master.programOutGain');
+
         this.log.info('Orphaned state cleanup complete');
     }
 
@@ -1085,16 +1088,6 @@ class AtemAdapter extends utils.Adapter {
                 type: 'boolean' as const,
                 role: 'switch',
                 write: true,
-            },
-            {
-                id: 'programOutGain',
-                name: 'Program Out Gain',
-                type: 'number' as const,
-                role: 'level.volume',
-                write: true,
-                min: -60,
-                max: 6,
-                unit: 'dB',
             },
         ];
 
@@ -1738,7 +1731,10 @@ class AtemAdapter extends utils.Adapter {
             this.clearTimeout(this.reconnectTimeout);
         }
 
-        const interval = this.config.reconnectInterval || 5000;
+        // Clamp defensively: UI limits (1000–60000ms) can be bypassed via direct
+        // object edits, and setTimeout caps out at 2^31-1 ms.
+        const MAX_TIMEOUT = 2_147_483_647;
+        const interval = Math.min(Math.max(this.config.reconnectInterval || 5000, 1000), MAX_TIMEOUT);
         this.log.info(`Scheduling reconnect in ${interval}ms`);
 
         this.reconnectTimeout = this.setTimeout(() => {

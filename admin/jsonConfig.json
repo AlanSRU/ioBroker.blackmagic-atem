@@ -69,19 +69,6 @@
             "max": 60000,
             "default": 5000,
             "tooltip": "Time to wait before reconnecting after connection loss"
-        },
-        "pollInterval": {
-            "type": "number",
-            "label": "Poll Interval (ms)",
-            "xs": 12,
-            "sm": 12,
-            "md": 6,
-            "lg": 6,
-            "xl": 6,
-            "min": 100,
-            "max": 10000,
-            "default": 1000,
-            "tooltip": "Interval for polling audio levels and other dynamic data"
         }
     }
 }

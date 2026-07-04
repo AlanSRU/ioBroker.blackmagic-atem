@@ -7,7 +7,5 @@
     "Auto Detect": "Auto Detect",
     "Advanced Settings": "Advanced Settings",
     "Reconnect Interval (ms)": "Reconnect Interval (ms)",
-    "Time to wait before reconnecting after connection loss": "Time to wait before reconnecting after connection loss",
-    "Poll Interval (ms)": "Poll Interval (ms)",
-    "Interval for polling audio levels and other dynamic data": "Interval for polling audio levels and other dynamic data"
+    "Time to wait before reconnecting after connection loss": "Time to wait before reconnecting after connection loss"
 }

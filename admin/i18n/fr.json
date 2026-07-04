@@ -5,8 +5,6 @@
     "Auto Detect": "Détection automatique",
     "Connection Settings": "Paramètres de connexion",
     "IP address of the ATEM mixer": "Adresse IP du mélangeur ATEM",
-    "Interval for polling audio levels and other dynamic data": "Intervalle d'interrogation des niveaux audio et d'autres données dynamiques",
-    "Poll Interval (ms)": "Intervalle d'interrogation (ms)",
     "Reconnect Interval (ms)": "Intervalle de reconnexion (ms)",
     "Select your ATEM model or use Auto Detect": "Sélectionnez votre modèle ATEM ou utilisez la détection automatique",
     "Time to wait before reconnecting after connection loss": "Temps d'attente avant de se reconnecter après une perte de connexion"

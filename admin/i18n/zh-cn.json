@@ -5,8 +5,6 @@
     "Auto Detect": "自动检测",
     "Connection Settings": "连接设置",
     "IP address of the ATEM mixer": "ATEM调音台的IP地址",
-    "Interval for polling audio levels and other dynamic data": "轮询音频电平和其他动态数据的时间间隔",
-    "Poll Interval (ms)": "轮询间隔（毫秒）",
     "Reconnect Interval (ms)": "重新连接间隔（毫秒）",
     "Select your ATEM model or use Auto Detect": "选择您的 ATEM 型号或使用自动检测",
     "Time to wait before reconnecting after connection loss": "连接丢失后重新连接之前等待的时间"
