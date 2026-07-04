@@ -122,7 +122,7 @@ The ATEM protocol has no authentication — keep ATEM devices on a trusted, priv
     Placeholder for the next version (at the beginning of the line):
     ### __WORK IN PROGRESS__
 -->
-### __WORK IN PROGRESS__
+### 0.2.5 (2026-07-04)
 - (Alan Paris) Resolved all ESLint warnings (unawaited promises, JSDoc parameter descriptions)
 
 ### 0.2.4 (2026-07-04)

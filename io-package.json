@@ -1,8 +1,21 @@
 {
   "common": {
     "name": "blackmagic-atem",
-    "version": "0.2.4",
+    "version": "0.2.5",
     "news": {
+      "0.2.5": {
+        "en": "Resolved all ESLint warnings (unawaited promises, JSDoc parameter descriptions)",
+        "de": "Alle ESLint-Warnungen (unerwartete Promises, JSDoc-Parameterbeschreibungen) wurden behoben.",
+        "ru": "Устранены все предупреждения ESLint (неожиданные промисы, описания параметров JSDoc).",
+        "pt": "Todas as advertências do ESLint foram resolvidas (promessas não aguardadas, descrições de parâmetros JSDoc).",
+        "nl": "Alle ESLint-waarschuwingen (niet-afgewachte promises, JSDoc-parameterbeschrijvingen) zijn opgelost.",
+        "fr": "Résolution de tous les avertissements ESLint (promesses non attendues, descriptions de paramètres JSDoc)",
+        "it": "Risolti tutti gli avvisi di ESLint (promesse non attese, descrizioni dei parametri JSDoc).",
+        "es": "Se han resuelto todas las advertencias de ESLint (promesas no esperadas, descripciones de parámetros JSDoc).",
+        "pl": "Rozwiązano wszystkie ostrzeżenia ESLint (nieoczekiwane obietnice, opisy parametrów JSDoc)",
+        "uk": "Вирішено всі попередження ESLint (неочікувані обіцянки, описи параметрів JSDoc)",
+        "zh-cn": "已解决所有 ESLint 警告（未等待的 Promise、JSDoc 参数描述）。"
+      },
       "0.2.4": {
         "en": "Fixed state roles so writable transition, keyer and media-player selectors, macro run and input info states pass the ioBroker object checker\nRemoved the legacy flat `transitionStyle` state on upgrade\nUse adapter-managed timers for the reconnect timeout\nUpdated dependencies for repochecker compliance",
         "de": "Feste Zustandsrollen, sodass beschreibbare Übergänge, Keyer- und Mediaplayer-Selektoren, Makroausführungs- und Eingabeinformationszustände den ioBroker-Objektprüfer bestehen.\nDer veraltete flache `transitionStyle`-Zustand wurde beim Upgrade entfernt.\nVerwenden Sie vom Adapter verwaltete Timer für das Wiederverbindungs-Timeout.\nAktualisierte Abhängigkeiten für die Repochecker-Konformität",
