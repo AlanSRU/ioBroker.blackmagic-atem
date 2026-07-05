@@ -18,3 +18,7 @@ iobroker-data/
 .commitinfo
 *.tgz
 iob_npm.done
+
+.review/
+
+CLAUDE.md

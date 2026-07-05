@@ -558,7 +558,7 @@ class AtemAdapter extends utils.Adapter {
         await this.createTallyStates();
 
         // Inputs channel - will be populated dynamically
-        await this.setObjectNotExistsAsync('inputs', {
+        await this.ensureObject('inputs', {
             type: 'channel',
             common: { name: 'Input Sources' },
             native: {},
@@ -679,8 +679,23 @@ class AtemAdapter extends utils.Adapter {
         }
     }
 
+    /**
+     * Wrapper around setObjectNotExistsAsync that guarantees every created state
+     * declares a type-appropriate `def` default (boolean→false, number→0, else '')
+     * when the caller does not supply one. Non-state objects pass through unchanged.
+     *
+     * @param id  Object ID (relative to the adapter namespace).
+     * @param obj Settable object definition to create if it does not yet exist.
+     */
+    private async ensureObject(id: string, obj: ioBroker.SettableObject): Promise<void> {
+        if (obj.type === 'state' && obj.common.def === undefined) {
+            obj.common.def = obj.common.type === 'boolean' ? false : obj.common.type === 'number' ? 0 : '';
+        }
+        await this.setObjectNotExistsAsync(id, obj);
+    }
+
     private async createDeviceInfoStates(): Promise<void> {
-        await this.setObjectNotExistsAsync('device', {
+        await this.ensureObject('device', {
             type: 'channel',
             common: { name: 'Device Information' },
             native: {},
@@ -695,7 +710,7 @@ class AtemAdapter extends utils.Adapter {
         ];
 
         for (const state of deviceStates) {
-            await this.setObjectNotExistsAsync(`device.${state.id}`, {
+            await this.ensureObject(`device.${state.id}`, {
                 type: 'state',
                 common: { name: state.name, type: state.type, role: state.role, read: true, write: false },
                 native: {},
@@ -710,7 +725,7 @@ class AtemAdapter extends utils.Adapter {
     private async createMixEffectStates(meIndex: number): Promise<void> {
         const meId = `me${meIndex}`;
 
-        await this.setObjectNotExistsAsync(meId, {
+        await this.ensureObject(meId, {
             type: 'channel',
             common: { name: `Mix Effect ${meIndex + 1}` },
             native: {},
@@ -740,7 +755,7 @@ class AtemAdapter extends utils.Adapter {
         ];
 
         for (const state of meStates) {
-            await this.setObjectNotExistsAsync(`${meId}.${state.id}`, {
+            await this.ensureObject(`${meId}.${state.id}`, {
                 type: 'state',
                 common: {
                     name: state.name,
@@ -756,13 +771,13 @@ class AtemAdapter extends utils.Adapter {
         }
 
         // Transition settings
-        await this.setObjectNotExistsAsync(`${meId}.transition`, {
+        await this.ensureObject(`${meId}.transition`, {
             type: 'channel',
             common: { name: 'Transition Settings' },
             native: {},
         });
 
-        await this.setObjectNotExistsAsync(`${meId}.transition.style`, {
+        await this.ensureObject(`${meId}.transition.style`, {
             type: 'state',
             common: {
                 name: 'Transition Style',
@@ -775,7 +790,7 @@ class AtemAdapter extends utils.Adapter {
             native: {},
         });
 
-        await this.setObjectNotExistsAsync(`${meId}.transition.mixRate`, {
+        await this.ensureObject(`${meId}.transition.mixRate`, {
             type: 'state',
             common: {
                 name: 'Mix Rate',
@@ -790,7 +805,7 @@ class AtemAdapter extends utils.Adapter {
             native: {},
         });
 
-        await this.setObjectNotExistsAsync(`${meId}.transition.dipRate`, {
+        await this.ensureObject(`${meId}.transition.dipRate`, {
             type: 'state',
             common: {
                 name: 'Dip Rate',
@@ -805,13 +820,13 @@ class AtemAdapter extends utils.Adapter {
             native: {},
         });
 
-        await this.setObjectNotExistsAsync(`${meId}.transition.dipSource`, {
+        await this.ensureObject(`${meId}.transition.dipSource`, {
             type: 'state',
             common: { name: 'Dip Source', type: 'number', role: 'media.input', read: true, write: true },
             native: {},
         });
 
-        await this.setObjectNotExistsAsync(`${meId}.transition.wipeRate`, {
+        await this.ensureObject(`${meId}.transition.wipeRate`, {
             type: 'state',
             common: {
                 name: 'Wipe Rate',
@@ -826,7 +841,7 @@ class AtemAdapter extends utils.Adapter {
             native: {},
         });
 
-        await this.setObjectNotExistsAsync(`${meId}.transition.wipePattern`, {
+        await this.ensureObject(`${meId}.transition.wipePattern`, {
             type: 'state',
             common: {
                 name: 'Wipe Pattern',
@@ -858,7 +873,7 @@ class AtemAdapter extends utils.Adapter {
             native: {},
         });
 
-        await this.setObjectNotExistsAsync(`${meId}.transition.dveRate`, {
+        await this.ensureObject(`${meId}.transition.dveRate`, {
             type: 'state',
             common: {
                 name: 'DVE Rate',
@@ -874,25 +889,25 @@ class AtemAdapter extends utils.Adapter {
         });
 
         // Fade to Black
-        await this.setObjectNotExistsAsync(`${meId}.fadeToBlack`, {
+        await this.ensureObject(`${meId}.fadeToBlack`, {
             type: 'channel',
             common: { name: 'Fade to Black' },
             native: {},
         });
 
-        await this.setObjectNotExistsAsync(`${meId}.fadeToBlack.isFullyBlack`, {
+        await this.ensureObject(`${meId}.fadeToBlack.isFullyBlack`, {
             type: 'state',
             common: { name: 'Is Fully Black', type: 'boolean', role: 'indicator', read: true, write: false },
             native: {},
         });
 
-        await this.setObjectNotExistsAsync(`${meId}.fadeToBlack.inTransition`, {
+        await this.ensureObject(`${meId}.fadeToBlack.inTransition`, {
             type: 'state',
             common: { name: 'FTB In Transition', type: 'boolean', role: 'indicator', read: true, write: false },
             native: {},
         });
 
-        await this.setObjectNotExistsAsync(`${meId}.fadeToBlack.rate`, {
+        await this.ensureObject(`${meId}.fadeToBlack.rate`, {
             type: 'state',
             common: {
                 name: 'FTB Rate',
@@ -916,7 +931,7 @@ class AtemAdapter extends utils.Adapter {
     private async createUSKStates(meIndex: number, uskIndex: number): Promise<void> {
         const uskId = `me${meIndex}.usk${uskIndex}`;
 
-        await this.setObjectNotExistsAsync(uskId, {
+        await this.ensureObject(uskId, {
             type: 'channel',
             common: { name: `Upstream Key ${uskIndex + 1}` },
             native: {},
@@ -939,7 +954,7 @@ class AtemAdapter extends utils.Adapter {
         ];
 
         for (const state of uskStates) {
-            await this.setObjectNotExistsAsync(`${uskId}.${state.id}`, {
+            await this.ensureObject(`${uskId}.${state.id}`, {
                 type: 'state',
                 common: {
                     name: state.name,
@@ -955,7 +970,7 @@ class AtemAdapter extends utils.Adapter {
     }
 
     private async createCommandStates(): Promise<void> {
-        await this.setObjectNotExistsAsync('commands', {
+        await this.ensureObject('commands', {
             type: 'channel',
             common: { name: 'Switcher Commands' },
             native: {},
@@ -968,7 +983,7 @@ class AtemAdapter extends utils.Adapter {
         ];
 
         for (const cmd of commands) {
-            await this.setObjectNotExistsAsync(`commands.${cmd.id}`, {
+            await this.ensureObject(`commands.${cmd.id}`, {
                 type: 'state',
                 common: { name: cmd.name, type: 'boolean', role: 'button', read: false, write: true, desc: cmd.desc },
                 native: {},
@@ -979,7 +994,7 @@ class AtemAdapter extends utils.Adapter {
     private async createDSKStates(dskIndex: number): Promise<void> {
         const dskId = `dsk${dskIndex}`;
 
-        await this.setObjectNotExistsAsync(dskId, {
+        await this.ensureObject(dskId, {
             type: 'channel',
             common: { name: `Downstream Key ${dskIndex + 1}` },
             native: {},
@@ -996,7 +1011,7 @@ class AtemAdapter extends utils.Adapter {
         ];
 
         for (const state of dskStates) {
-            await this.setObjectNotExistsAsync(`${dskId}.${state.id}`, {
+            await this.ensureObject(`${dskId}.${state.id}`, {
                 type: 'state',
                 common: {
                     name: state.name,
@@ -1010,7 +1025,7 @@ class AtemAdapter extends utils.Adapter {
             });
         }
 
-        await this.setObjectNotExistsAsync(`${dskId}.auto`, {
+        await this.ensureObject(`${dskId}.auto`, {
             type: 'state',
             common: {
                 name: 'Auto DSK',
@@ -1027,13 +1042,13 @@ class AtemAdapter extends utils.Adapter {
     private async createAuxStates(auxIndex: number): Promise<void> {
         const auxId = `aux${auxIndex}`;
 
-        await this.setObjectNotExistsAsync(auxId, {
+        await this.ensureObject(auxId, {
             type: 'channel',
             common: { name: `Auxiliary Output ${auxIndex + 1}` },
             native: {},
         });
 
-        await this.setObjectNotExistsAsync(`${auxId}.source`, {
+        await this.ensureObject(`${auxId}.source`, {
             type: 'state',
             common: {
                 name: 'Source',
@@ -1048,14 +1063,14 @@ class AtemAdapter extends utils.Adapter {
     }
 
     private async createAudioStates(): Promise<void> {
-        await this.setObjectNotExistsAsync('audio', {
+        await this.ensureObject('audio', {
             type: 'channel',
             common: { name: 'Audio Mixer' },
             native: {},
         });
 
         // Master output
-        await this.setObjectNotExistsAsync('audio.master', {
+        await this.ensureObject('audio.master', {
             type: 'channel',
             common: { name: 'Master Output' },
             native: {},
@@ -1091,8 +1106,17 @@ class AtemAdapter extends utils.Adapter {
             },
         ];
 
+        // balance and afvCrossfade are Classic-audio-only: the Fairlight master has
+        // no balance and no exposed AFV-crossfade setter, so on Fairlight models we
+        // skip them (they would be writable but no-op) and remove any left over from
+        // older adapter versions. Master gain/afv are supported on both mixer types.
+        const classicOnlyMaster = ['balance', 'afvCrossfade'];
         for (const state of masterStates) {
-            await this.setObjectNotExistsAsync(`audio.master.${state.id}`, {
+            if (this.capabilities.hasFairlightAudio && classicOnlyMaster.includes(state.id)) {
+                await this.deleteObjectWithChildren(`audio.master.${state.id}`);
+                continue;
+            }
+            await this.ensureObject(`audio.master.${state.id}`, {
                 type: 'state',
                 common: {
                     name: state.name,
@@ -1109,7 +1133,7 @@ class AtemAdapter extends utils.Adapter {
         }
 
         // Monitor channel
-        await this.setObjectNotExistsAsync('audio.monitor', {
+        await this.ensureObject('audio.monitor', {
             type: 'channel',
             common: { name: 'Monitor Output' },
             native: {},
@@ -1132,8 +1156,17 @@ class AtemAdapter extends utils.Adapter {
             { id: 'dim', name: 'Monitor Dim', type: 'boolean' as const, role: 'switch', write: true },
         ];
 
+        // enabled/solo/dim are Classic-audio-only monitor controls; the Fairlight
+        // mixer has no equivalent, so on Fairlight models we skip creating them
+        // (they would be writable but no-op) and remove any left over from older
+        // adapter versions.
+        const classicOnlyMonitor = ['enabled', 'solo', 'dim'];
         for (const state of monitorStates) {
-            await this.setObjectNotExistsAsync(`audio.monitor.${state.id}`, {
+            if (this.capabilities.hasFairlightAudio && classicOnlyMonitor.includes(state.id)) {
+                await this.deleteObjectWithChildren(`audio.monitor.${state.id}`);
+                continue;
+            }
+            await this.ensureObject(`audio.monitor.${state.id}`, {
                 type: 'state',
                 common: {
                     name: state.name,
@@ -1150,13 +1183,13 @@ class AtemAdapter extends utils.Adapter {
         }
 
         // Audio commands/utilities
-        await this.setObjectNotExistsAsync('audio.commands', {
+        await this.ensureObject('audio.commands', {
             type: 'channel',
             common: { name: 'Audio Commands' },
             native: {},
         });
 
-        await this.setObjectNotExistsAsync('audio.commands.resetPeaks', {
+        await this.ensureObject('audio.commands.resetPeaks', {
             type: 'state',
             common: {
                 name: 'Reset Audio Peaks',
@@ -1169,7 +1202,7 @@ class AtemAdapter extends utils.Adapter {
         });
 
         // Audio inputs channel - will be populated dynamically
-        await this.setObjectNotExistsAsync('audio.inputs', {
+        await this.ensureObject('audio.inputs', {
             type: 'channel',
             common: { name: 'Audio Inputs' },
             native: {},
@@ -1179,7 +1212,7 @@ class AtemAdapter extends utils.Adapter {
     private async createColorGeneratorStates(cgIndex: number): Promise<void> {
         const cgId = `colorGenerator${cgIndex}`;
 
-        await this.setObjectNotExistsAsync(cgId, {
+        await this.ensureObject(cgId, {
             type: 'channel',
             common: { name: `Color Generator ${cgIndex + 1}` },
             native: {},
@@ -1219,6 +1252,8 @@ class AtemAdapter extends utils.Adapter {
         ];
 
         for (const state of cgStates) {
+            // setObjectAsync (not ensureObject) to force-refresh min/max on upgrade,
+            // so def must be supplied explicitly here.
             await this.setObjectAsync(`${cgId}.${state.id}`, {
                 type: 'state',
                 common: {
@@ -1227,6 +1262,7 @@ class AtemAdapter extends utils.Adapter {
                     role: state.role,
                     read: true,
                     write: state.write,
+                    def: 0,
                     min: state.min,
                     max: state.max,
                     unit: state.unit,
@@ -1237,13 +1273,13 @@ class AtemAdapter extends utils.Adapter {
     }
 
     private async createStreamingStates(): Promise<void> {
-        await this.setObjectNotExistsAsync('streaming', {
+        await this.ensureObject('streaming', {
             type: 'channel',
             common: { name: 'Streaming' },
             native: {},
         });
 
-        await this.setObjectNotExistsAsync('streaming.status', {
+        await this.ensureObject('streaming.status', {
             type: 'state',
             common: {
                 name: 'Streaming Status',
@@ -1287,7 +1323,7 @@ class AtemAdapter extends utils.Adapter {
         ];
 
         for (const state of streamingStates) {
-            await this.setObjectNotExistsAsync(`streaming.${state.id}`, {
+            await this.ensureObject(`streaming.${state.id}`, {
                 type: 'state',
                 common: {
                     name: state.name,
@@ -1303,13 +1339,13 @@ class AtemAdapter extends utils.Adapter {
     }
 
     private async createRecordingStates(): Promise<void> {
-        await this.setObjectNotExistsAsync('recording', {
+        await this.ensureObject('recording', {
             type: 'channel',
             common: { name: 'Recording' },
             native: {},
         });
 
-        await this.setObjectNotExistsAsync('recording.status', {
+        await this.ensureObject('recording.status', {
             type: 'state',
             common: {
                 name: 'Recording Status',
@@ -1361,7 +1397,7 @@ class AtemAdapter extends utils.Adapter {
         ];
 
         for (const state of recordingStates) {
-            await this.setObjectNotExistsAsync(`recording.${state.id}`, {
+            await this.ensureObject(`recording.${state.id}`, {
                 type: 'state',
                 common: {
                     name: state.name,
@@ -1379,7 +1415,7 @@ class AtemAdapter extends utils.Adapter {
     private async createMediaPlayerStates(mpIndex: number): Promise<void> {
         const mpId = `mediaPlayer${mpIndex}`;
 
-        await this.setObjectNotExistsAsync(mpId, {
+        await this.ensureObject(mpId, {
             type: 'channel',
             common: { name: `Media Player ${mpIndex + 1}` },
             native: {},
@@ -1400,6 +1436,7 @@ class AtemAdapter extends utils.Adapter {
                 role: 'level',
                 read: true,
                 write: true,
+                def: 1,
                 states: sourceTypeStates,
             },
             native: {},
@@ -1414,6 +1451,7 @@ class AtemAdapter extends utils.Adapter {
                 role: 'level',
                 read: true,
                 write: true,
+                def: 0,
                 min: 0,
                 max: this.capabilities.mediaStills - 1,
             },
@@ -1430,6 +1468,7 @@ class AtemAdapter extends utils.Adapter {
                     role: 'level',
                     read: true,
                     write: true,
+                    def: 0,
                     min: 0,
                     max: this.capabilities.mediaClips - 1,
                 },
@@ -1447,7 +1486,7 @@ class AtemAdapter extends utils.Adapter {
         ];
 
         for (const state of mpStates) {
-            await this.setObjectNotExistsAsync(`${mpId}.${state.id}`, {
+            await this.ensureObject(`${mpId}.${state.id}`, {
                 type: 'state',
                 common: {
                     name: state.name,
@@ -1462,13 +1501,13 @@ class AtemAdapter extends utils.Adapter {
     }
 
     private async createTallyStates(): Promise<void> {
-        await this.setObjectNotExistsAsync('tally', {
+        await this.ensureObject('tally', {
             type: 'channel',
             common: { name: 'Tally Information' },
             native: {},
         });
 
-        await this.setObjectNotExistsAsync('tally.programInputs', {
+        await this.ensureObject('tally.programInputs', {
             type: 'state',
             common: {
                 name: 'Program Inputs',
@@ -1481,7 +1520,7 @@ class AtemAdapter extends utils.Adapter {
             native: {},
         });
 
-        await this.setObjectNotExistsAsync('tally.previewInputs', {
+        await this.ensureObject('tally.previewInputs', {
             type: 'state',
             common: {
                 name: 'Preview Inputs',
@@ -1499,7 +1538,7 @@ class AtemAdapter extends utils.Adapter {
         // All ATEM models support 100 macro slots (0-99)
         const MACRO_SLOTS = 100;
 
-        await this.setObjectNotExistsAsync('macros', {
+        await this.ensureObject('macros', {
             type: 'channel',
             common: { name: 'Macros' },
             native: {},
@@ -1572,7 +1611,7 @@ class AtemAdapter extends utils.Adapter {
         ];
 
         for (const state of macroStates) {
-            await this.setObjectNotExistsAsync(`macros.${state.id}`, {
+            await this.ensureObject(`macros.${state.id}`, {
                 type: 'state',
                 common: {
                     name: state.name,
@@ -1589,7 +1628,7 @@ class AtemAdapter extends utils.Adapter {
         }
 
         // Create channel for macro slots
-        await this.setObjectNotExistsAsync('macros.slots', {
+        await this.ensureObject('macros.slots', {
             type: 'channel',
             common: { name: 'Macro Slots (0-99)' },
             native: {},
@@ -1597,19 +1636,19 @@ class AtemAdapter extends utils.Adapter {
 
         // Create states for each macro slot to show name and status
         for (let i = 0; i < MACRO_SLOTS; i++) {
-            await this.setObjectNotExistsAsync(`macros.slots.${i}`, {
+            await this.ensureObject(`macros.slots.${i}`, {
                 type: 'channel',
                 common: { name: `Macro ${i}` },
                 native: {},
             });
 
-            await this.setObjectNotExistsAsync(`macros.slots.${i}.name`, {
+            await this.ensureObject(`macros.slots.${i}.name`, {
                 type: 'state',
                 common: { name: 'Macro Name', type: 'string', role: 'text', read: true, write: false },
                 native: {},
             });
 
-            await this.setObjectNotExistsAsync(`macros.slots.${i}.isUsed`, {
+            await this.ensureObject(`macros.slots.${i}.isUsed`, {
                 type: 'state',
                 common: {
                     name: 'Macro Recorded',
@@ -1622,7 +1661,7 @@ class AtemAdapter extends utils.Adapter {
                 native: {},
             });
 
-            await this.setObjectNotExistsAsync(`macros.slots.${i}.trigger`, {
+            await this.ensureObject(`macros.slots.${i}.trigger`, {
                 type: 'state',
                 common: {
                     name: 'Trigger Macro',
@@ -2120,7 +2159,7 @@ class AtemAdapter extends utils.Adapter {
 
             const stateId = `inputs.input${inputId}`;
 
-            await this.setObjectNotExistsAsync(stateId, {
+            await this.ensureObject(stateId, {
                 type: 'channel',
                 common: { name: input.longName || `Input ${inputId}` },
                 native: {},
@@ -2134,7 +2173,7 @@ class AtemAdapter extends utils.Adapter {
             ];
 
             for (const state of inputStates) {
-                await this.setObjectNotExistsAsync(`${stateId}.${state.id}`, {
+                await this.ensureObject(`${stateId}.${state.id}`, {
                     type: 'state',
                     common: {
                         name: state.id.charAt(0).toUpperCase() + state.id.slice(1).replace(/([A-Z])/g, ' $1'),
@@ -2160,7 +2199,7 @@ class AtemAdapter extends utils.Adapter {
 
                 const stateId = `audio.inputs.input${inputId}`;
 
-                await this.setObjectNotExistsAsync(stateId, {
+                await this.ensureObject(stateId, {
                     type: 'channel',
                     common: { name: `Audio Input ${inputId}` },
                     native: {},
@@ -2173,7 +2212,7 @@ class AtemAdapter extends utils.Adapter {
                 ];
 
                 for (const state of channelStates) {
-                    await this.setObjectNotExistsAsync(`${stateId}.${state.id}`, {
+                    await this.ensureObject(`${stateId}.${state.id}`, {
                         type: 'state',
                         common: {
                             name: state.name,
@@ -2408,6 +2447,12 @@ class AtemAdapter extends utils.Adapter {
         } else if (property === 'keySource') {
             await this.atem.setUpstreamKeyerCutSource(Number(value), meIndex, uskIndex);
             this.log.info(`Set ME${meIndex + 1} USK${uskIndex + 1} key source: ${value}`);
+        } else if (property === 'maskEnabled') {
+            await this.atem.setUpstreamKeyerMaskSettings({ maskEnabled: Boolean(value) }, meIndex, uskIndex);
+            this.log.info(`Set ME${meIndex + 1} USK${uskIndex + 1} mask enabled: ${value}`);
+        } else if (property === 'flyEnabled') {
+            await this.atem.setUpstreamKeyerType({ flyEnabled: Boolean(value) }, meIndex, uskIndex);
+            this.log.info(`Set ME${meIndex + 1} USK${uskIndex + 1} fly enabled: ${value}`);
         }
     }
 
@@ -2434,6 +2479,9 @@ class AtemAdapter extends utils.Adapter {
         } else if (property === 'keySource') {
             await this.atem.setDownstreamKeyCutSource(Number(value), dskIndex);
             this.log.info(`Set DSK${dskIndex + 1} key source: ${value}`);
+        } else if (property === 'preMultiplied') {
+            await this.atem.setDownstreamKeyGeneralProperties({ preMultiply: Boolean(value) }, dskIndex);
+            this.log.info(`Set DSK${dskIndex + 1} pre-multiplied: ${value}`);
         }
     }
 
@@ -2444,8 +2492,14 @@ class AtemAdapter extends utils.Adapter {
 
         if (parts[0] === 'master') {
             if (parts[1] === 'gain') {
-                await this.atem.setClassicAudioMixerMasterProps({ gain: Number(value) });
-                this.log.info(`Set master audio gain: ${value}`);
+                // Handle both Classic and Fairlight audio
+                if (this.capabilities.hasFairlightAudio && this.atem.state?.fairlight?.master) {
+                    await this.atem.setFairlightAudioMixerMasterProps({ faderGain: Number(value) });
+                    this.log.info(`Set Fairlight master audio gain: ${value}`);
+                } else {
+                    await this.atem.setClassicAudioMixerMasterProps({ gain: Number(value) });
+                    this.log.info(`Set Classic master audio gain: ${value}`);
+                }
             } else if (parts[1] === 'balance') {
                 await this.atem.setClassicAudioMixerMasterProps({ balance: Number(value) });
                 this.log.info(`Set master audio balance: ${value}`);

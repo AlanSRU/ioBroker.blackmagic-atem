@@ -122,6 +122,12 @@ The ATEM protocol has no authentication — keep ATEM devices on a trusted, priv
     Placeholder for the next version (at the beginning of the line):
     ### __WORK IN PROGRESS__
 -->
+### __WORK IN PROGRESS__
+- (Alan Paris) Fixed upstream-keyer mask/fly enable and downstream-key pre-multiplied controls, which were writable but ignored, so they now apply to the switcher
+- (Alan Paris) Master audio gain now controls Fairlight mixers correctly (previously it sent a Classic-audio command that Fairlight models ignored)
+- (Alan Paris) Hid Classic-only audio controls (master balance/AFV crossfade, monitor enable/solo/dim) on Fairlight models, where they had no effect
+- (Alan Paris) Added default values to all dynamically created states
+
 ### 0.2.7 (2026-07-04)
 - (Alan Paris) Added a link to the Blackmagic Design ATEM product page in the README
 - (Alan Paris) Clamp the reconnect interval in code so out-of-range config values cannot break the timer
