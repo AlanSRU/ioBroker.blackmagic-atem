@@ -48,7 +48,7 @@ Install via the ioBroker Admin UI: **Adapters â†’ search for `blackmagic-atem` â
 1. Open the adapter instance configuration in ioBroker Admin
 2. Enter the IP address of your ATEM device
 3. Choose the model (or leave on Auto Detect)
-4. Adjust the reconnect and poll intervals if needed
+4. Adjust the reconnect interval if needed
 5. Save and start the adapter
 
 ## State Tree
