@@ -1,8 +1,21 @@
 {
   "common": {
     "name": "blackmagic-atem",
-    "version": "0.2.7",
+    "version": "0.2.8",
     "news": {
+      "0.2.8": {
+        "en": "Fixed upstream-keyer mask/fly enable and downstream-key pre-multiplied controls, which were writable but ignored, so they now apply to the switcher\nMaster audio gain now controls Fairlight mixers correctly (previously it sent a Classic-audio command that Fairlight models ignored)\nHid Classic-only audio controls (master balance/AFV crossfade, monitor enable/solo/dim) on Fairlight models, where they had no effect\nAdded default values to all dynamically created states",
+        "de": "Die Steuerung für die Upstream-Keyer-Maske/Fly-Aktivierung und die Downstream-Key-Vormultiplikation wurde korrigiert. Diese Steuerelemente waren zwar beschreibbar, wurden aber ignoriert und gelten nun für den Switcher.\nDie Master-Audioverstärkung steuert nun Fairlight-Mixer korrekt (zuvor wurde ein Classic-Audio-Befehl gesendet, der von den Fairlight-Modellen ignoriert wurde).\nBei Fairlight-Modellen wurden die Audiosteuerungen (Master Balance/AFV Crossfade, Monitor Enable/Solo/Dim) nur für Classic-Modelle ausgeblendet, wo sie keine Wirkung zeigten.\nAllen dynamisch erstellten Zuständen wurden Standardwerte hinzugefügt.",
+        "ru": "Исправлены ошибки в настройках маски/разрешения переадресации ключей в восходящем потоке и предварительного умножения ключей в нисходящем потоке, которые были доступны для записи, но игнорировались, поэтому теперь они применяются к коммутатору.\nТеперь управление общим усилением звука корректно работает с микшерами Fairlight (ранее отправлялась команда Classic-audio, которую модели Fairlight игнорировали).\nНа моделях Fairlight элементы управления звуком, доступные только в Hid Classic (баланс мастер-канала/кроссфейд AFV, включение/соло/приглушение монитора), не оказывали никакого эффекта.\nДобавлены значения по умолчанию для всех динамически создаваемых состояний.",
+        "pt": "Corrigidos os controles de máscara/habilitação de voo do keyer upstream e de pré-multiplicação do key downstream, que eram graváveis, mas ignorados; agora, eles se aplicam ao switcher.\nO ganho de áudio principal agora controla corretamente os mixers Fairlight (antes, ele enviava um comando Classic-audio que os modelos Fairlight ignoravam).\nOs controles de áudio exclusivos do Fairlight (balanço principal/transição AFV, ativação/solo/diminuição do monitor) foram ocultados nos modelos Fairlight, onde não tinham efeito.\nAdicionamos valores padrão a todos os estados criados dinamicamente.",
+        "nl": "De besturingselementen voor het masker/inschakelen van de upstream-keyer en het voorvermenigvuldigen van de downstream-key zijn gecorrigeerd. Deze waren wel beschrijfbaar, maar werden genegeerd, waardoor ze nu wel van toepassing zijn op de switcher.\nDe master-audiogain stuurt nu de Fairlight-mixers correct aan (voorheen verstuurde deze een Classic-audio-commando dat door Fairlight-modellen werd genegeerd).\nVerborgen audiobedieningselementen die alleen beschikbaar waren in de Classic-serie (hoofdbalans/AFV-crossfade, monitor inschakelen/solo/dimmen) op Fairlight-modellen, waar ze geen effect hadden.\nStandaardwaarden toegevoegd aan alle dynamisch aangemaakte staten",
+        "fr": "Correction des commandes de masque/activation de vol du collecteur en amont et de prémultiplication du collecteur en aval, qui étaient modifiables mais ignorées ; elles s’appliquent désormais au commutateur.\nLe gain audio principal contrôle désormais correctement les consoles de mixage Fairlight (auparavant, il envoyait une commande Classic-audio que les modèles Fairlight ignoraient).\nLes commandes audio exclusives aux modèles Fairlight (balance générale/fondu enchaîné AFV, activation/solo/atténuation du moniteur) étaient masquées, car elles étaient sans effet.\nAjout de valeurs par défaut à tous les états créés dynamiquement",
+        "it": "Corretti i controlli di abilitazione della maschera/volante del keyer a monte e di pre-moltiplicazione del keyer a valle, che erano scrivibili ma ignorati, in modo che ora vengano applicati allo switcher\nIl controllo del guadagno audio principale ora gestisce correttamente i mixer Fairlight (in precedenza inviava un comando Classic-audio che i modelli Fairlight ignoravano).\nHo nascosto i controlli audio esclusivi della versione Classic (bilanciamento master/dissolvenza incrociata AFV, attivazione/solo/attenuazione monitor) sui modelli Fairlight, dove non avevano alcun effetto.\nAggiunti valori predefiniti a tutti gli stati creati dinamicamente",
+        "es": "Se corrigieron los controles de máscara/activación de vuelo del keyer ascendente y de premultiplicación del keyer descendente, que eran modificables pero se ignoraban, por lo que ahora se aplican al conmutador.\nAhora, la ganancia de audio maestra controla correctamente las mesas de mezclas Fairlight (anteriormente enviaba un comando de audio clásico que los modelos Fairlight ignoraban).\nOcultó los controles de audio exclusivos de Classic (balance maestro/fundido cruzado AFV, activación/solo/atenuación del monitor) en los modelos Fairlight, donde no tenían ningún efecto.\nSe agregaron valores predeterminados a todos los estados creados dinámicamente.",
+        "pl": "Naprawiono włączanie maski/przelotu klucza nadrzędnego i wstępne mnożenie elementów sterujących kluczem nadrzędnym, które były zapisywalne, ale ignorowane, więc teraz mają zastosowanie do przełącznika\nWzmocnienie głównego sygnału audio teraz prawidłowo kontroluje miksery Fairlight (wcześniej wysyłało polecenie Classic-audio, które modele Fairlight ignorowały)\nUkryto sterowanie dźwiękiem dostępne tylko w trybie klasycznym (balans główny/przejście AFV, włączanie/solo/ściemnianie monitora) w modelach Fairlight, gdzie nie miało to żadnego wpływu\nDodano wartości domyślne do wszystkich dynamicznie tworzonych stanów",
+        "uk": "Виправлено маску/увімкнення мухи для вихідного ключа та елементи керування попереднім множенням ключа для низхідного ключа, які можна було записувати, але ігнорувалися, тому тепер вони застосовуються до перемикача.\nГоловне аудіо посилення тепер правильно керує мікшерами Fairlight (раніше воно надсилало команду Classic-audio, яку моделі Fairlight ігнорували).\nПриховано елементи керування звуком лише для Classic (головний баланс/кроссфейд AFV, увімкнення/соло/діммування монітора) на моделях Fairlight, де вони не мали жодного ефекту.\nДодано значення за замовчуванням для всіх динамічно створених станів",
+        "zh-cn": "修复了上游键控掩码/飞行使能和下游键控预乘控制，这些控制之前是可写的但会被忽略，现在它们会应用到切换器上。\n主音频增益现在可以正确控制 Fairlight 混音器（之前它会发送一个 Fairlight 模型会忽略的 Classic 音频命令）。\n在 Fairlight 型号上隐藏了仅限 Classic 使用的音频控制（主平衡/AFV 交叉淡入淡出、监听启用/独奏/调暗），这些控制功能无效。\n为所有动态创建的状态添加了默认值"
+      },
       "0.2.7": {
         "en": "Added a link to the Blackmagic Design ATEM product page in the README\nClamp the reconnect interval in code so out-of-range config values cannot break the timer\nRemoved the unused `pollInterval` config option (the adapter is fully push-based)\nRemoved the unused `audio.master.programOutGain` state",
         "de": "Im README wurde ein Link zur Produktseite des Blackmagic Design ATEM hinzugefügt.\nDas Wiederverbindungsintervall sollte im Code so begrenzt werden, dass Konfigurationswerte außerhalb des zulässigen Bereichs den Timer nicht unterbrechen können.\nDie nicht verwendete Konfigurationsoption `pollInterval` wurde entfernt (der Adapter ist vollständig Push-basiert).\nDer ungenutzte Zustand `audio.master.programOutGain` wurde entfernt.",
@@ -80,19 +93,6 @@
         "pl": "Przełączona publikacja informacyjna do zaufanej publikacji npm (OIDC)",
         "uk": "Вимкнено CI публікувати на npm перевірене видання (OIDC)",
         "zh-cn": "切换 CI 发布到 npm 信任的出版 (OIDC)"
-      },
-      "0.2.1": {
-        "en": "Initial publication to npm registry",
-        "de": "Erstveröffentlichung im Register npm",
-        "ru": "Первоначальная публикация в реестре npm",
-        "pt": "Publicação inicial no registo npm",
-        "nl": "Oorspronkelijke publicatie naar npm register",
-        "fr": "Publication initiale au registre npm",
-        "it": "Pubblicazione iniziale al registro npm",
-        "es": "Publicación inicial al registro npm",
-        "pl": "Początkowa publikacja do rejestru npm",
-        "uk": "Початкова публікація до реєстру npm",
-        "zh-cn": "初次向npm登记册公布"
       }
     },
     "titleLang": {
