@@ -1,8 +1,21 @@
 {
   "common": {
     "name": "blackmagic-atem",
-    "version": "0.2.8",
+    "version": "0.2.9",
     "news": {
+      "0.2.9": {
+        "en": "Made macros.run write-only (it no longer retains the last-triggered index); use macros.runningIndex to read the active macro\nRenamed recording.remainingDiskSpace to \"Remaining Recording Time\" and documented that its value is seconds of available recording capacity, not bytes\nStopped writing audio.master.afvCrossfade on Fairlight models, where the state does not exist",
+        "de": "Die Methode `macros.run` wurde schreibgeschützt (sie speichert nicht mehr den Index des zuletzt aufgerufenen Makros); verwenden Sie `macros.runningIndex`, um das aktive Makro zu lesen.\nDie Variable recording.remainingDiskSpace wurde in „Verbleibende Aufnahmezeit“ umbenannt und dokumentiert, dass ihr Wert die verfügbare Aufnahmekapazität in Sekunden und nicht in Bytes angibt.\nDas Schreiben von audio.master.afvCrossfade auf Fairlight-Modellen, bei denen der Zustand nicht existiert, wurde eingestellt.",
+        "ru": "Сделан режим записи для функции macros.run (она больше не сохраняет индекс последнего сработавшего макроса); для чтения активного макроса используется функция macros.runningIndex.\nПереименована переменная recording.remainingDiskSpace в \"Remaining Recording Time\" и указано, что её значение представляет собой количество секунд доступной памяти для записи, а не байтов.\nПрекратилась запись параметра audio.master.afvCrossfade в моделях Fairlight, где это состояние отсутствует.",
+        "pt": "A função `macros.run` agora é somente para escrita (ela não retém mais o último índice acionado); use `macros.runningIndex` para ler a macro ativa.\nRenomeamos recording.remainingDiskSpace para \"Tempo de Gravação Restante\" e documentamos que seu valor representa segundos de capacidade de gravação disponível, não bytes.\nParou de gravar audio.master.afvCrossfade em modelos Fairlight, onde o estado não existe.",
+        "nl": "De macros.run-functie is nu alleen-schrijfbaar (de index van de laatst geactiveerde macro wordt niet langer bewaard); gebruik macros.runningIndex om de actieve macro te lezen.\nDe naam van recording.remainingDiskSpace is gewijzigd naar \"Remaining Recording Time\" en er is vastgelegd dat de waarde ervan de beschikbare opnamecapaciteit in seconden weergeeft, en niet in bytes.\nHet schrijven van audio.master.afvCrossfade is gestopt op Fairlight-modellen waar deze status niet bestaat.",
+        "fr": "La fonction macros.run est désormais en écriture seule (elle ne conserve plus l'index de la dernière macro déclenchée) ; utilisez macros.runningIndex pour lire la macro active.\nLa variable recording.remainingDiskSpace a été renommée « Temps d'enregistrement restant » et il a été précisé que sa valeur correspond aux secondes de capacité d'enregistrement disponible, et non aux octets.\nArrêt de l'écriture de audio.master.afvCrossfade sur les modèles Fairlight, où l'état n'existe pas",
+        "it": "La funzione macros.run è stata resa di sola scrittura (non conserva più l'indice dell'ultima attivazione); utilizzare macros.runningIndex per leggere la macro attiva.\nRinominato recording.remainingDiskSpace in \"Tempo di registrazione rimanente\" e documentato che il suo valore è espresso in secondi di capacità di registrazione disponibile, non in byte.\nHo smesso di scrivere audio.master.afvCrossfade sui modelli Fairlight, dove lo stato non esiste",
+        "es": "Se ha configurado macros.run como de solo escritura (ya no conserva el último índice activado); utilice macros.runningIndex para leer la macro activa.\nSe cambió el nombre de recording.remainingDiskSpace a \"Tiempo de grabación restante\" y se documentó que su valor son segundos de capacidad de grabación disponible, no bytes.\nSe dejó de escribir audio.master.afvCrossfade en los modelos Fairlight, donde el estado no existe.",
+        "pl": "Macros.run stało się tylko do zapisu (nie zachowuje już ostatnio wyzwolonego indeksu); użyj macros.runningIndex do odczytu aktywnego makra\nZmieniono nazwę record.remainingDiskSpace na „Pozostały czas nagrywania” i udokumentowano, że jego wartość to sekundy dostępnej pojemności nagrywania, a nie bajty\nZatrzymano zapisywanie audio.master.afvCrossfade w modelach Fairlight, w których stan nie istnieje",
+        "uk": "Зроблено macros.run доступним лише для запису (він більше не зберігає індекс останнього запущеного макросу); використовуйте macros.runningIndex для читання активного макросу.\nПерейменовано recording.remainingDiskSpace на \"Залишок часу запису\" та задокументовано, що його значення вимірюється секундами доступного обсягу запису, а не байтами.\nЗупинено запис audio.master.afvCrossfade на моделях Fairlight, де стан не існує.",
+        "zh-cn": "将 macros.run 改为只写（它不再保留上次触发的索引）；使用 macros.runningIndex 读取活动宏。\n将 recording.remainingDiskSpace 重命名为“剩余录制时间”，并说明其值是可用录制容量的秒数，而不是字节数。\n已停止在 Fairlight 模型上写入 audio.master.afvCrossfade，因为该状态不存在。"
+      },
       "0.2.8": {
         "en": "Fixed upstream-keyer mask/fly enable and downstream-key pre-multiplied controls, which were writable but ignored, so they now apply to the switcher\nMaster audio gain now controls Fairlight mixers correctly (previously it sent a Classic-audio command that Fairlight models ignored)\nHid Classic-only audio controls (master balance/AFV crossfade, monitor enable/solo/dim) on Fairlight models, where they had no effect\nAdded default values to all dynamically created states",
         "de": "Die Steuerung für die Upstream-Keyer-Maske/Fly-Aktivierung und die Downstream-Key-Vormultiplikation wurde korrigiert. Diese Steuerelemente waren zwar beschreibbar, wurden aber ignoriert und gelten nun für den Switcher.\nDie Master-Audioverstärkung steuert nun Fairlight-Mixer korrekt (zuvor wurde ein Classic-Audio-Befehl gesendet, der von den Fairlight-Modellen ignoriert wurde).\nBei Fairlight-Modellen wurden die Audiosteuerungen (Master Balance/AFV Crossfade, Monitor Enable/Solo/Dim) nur für Classic-Modelle ausgeblendet, wo sie keine Wirkung zeigten.\nAllen dynamisch erstellten Zuständen wurden Standardwerte hinzugefügt.",
@@ -80,19 +93,6 @@
         "pl": "Przesunięcie minimum Node.js do 22 i matrycy CI do 22 / 24 dla przestrzegania przez społeczność jOBroker zasady składania wniosków\nUstaw 'commun.noGit: true', więc drzewo gitignored 'build /' nie przesuwa repochecker\nTrim \"common .news\" tylko wersji opublikowanych do npm",
         "uk": "Bump мінімальний Node.js до 22 та CI матриця до 22/24 для дотримання вимог ioBroker\nНабір `common.noGit: true` так gitignored `build/`` Дерево не подорожує репочекер\nТрим `common.news` to only version by npm",
         "zh-cn": "OBroker社区提交要求的最小节点js至22和CI矩阵至22/24\n设置“ common. noGit: true ” , 以便“ 建设/ ” 树不会绊倒重新检查器\nTrim \" common. news\" 仅发布至 npm 版本"
-      },
-      "0.2.2": {
-        "en": "Switched CI publish to npm trusted publishing (OIDC)",
-        "de": "Geschaltet CI veröffentlichen zu npm Trusted Publishing (OIDC)",
-        "ru": "Switched CI доверенная публикация npm (OIDC)",
-        "pt": "O CI alterado publica para publicação confiável do npm (OIDC)",
-        "nl": "Geswitched CI publish to npm trusted publishing (OIDC)",
-        "fr": "L'IC a changé de publication pour npm en publication fiable (OIDC)",
-        "it": "Switched CI pubblicare a npm editoria fidata (OIDC)",
-        "es": "Switched CI publica a npm de confianza publicación (OIDC)",
-        "pl": "Przełączona publikacja informacyjna do zaufanej publikacji npm (OIDC)",
-        "uk": "Вимкнено CI публікувати на npm перевірене видання (OIDC)",
-        "zh-cn": "切换 CI 发布到 npm 信任的出版 (OIDC)"
       }
     },
     "titleLang": {
