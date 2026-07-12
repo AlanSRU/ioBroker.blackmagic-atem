@@ -122,6 +122,11 @@ The ATEM protocol has no authentication — keep ATEM devices on a trusted, priv
     Placeholder for the next version (at the beginning of the line):
     ### __WORK IN PROGRESS__
 -->
+### __WORK IN PROGRESS__
+- (Alan Paris) Made macros.run write-only (it no longer retains the last-triggered index); use macros.runningIndex to read the active macro
+- (Alan Paris) Renamed recording.remainingDiskSpace to "Remaining Recording Time" and documented that its value is seconds of available recording capacity, not bytes
+- (Alan Paris) Stopped writing audio.master.afvCrossfade on Fairlight models, where the state does not exist
+
 ### 0.2.8 (2026-07-05)
 - (Alan Paris) Fixed upstream-keyer mask/fly enable and downstream-key pre-multiplied controls, which were writable but ignored, so they now apply to the switcher
 - (Alan Paris) Master audio gain now controls Fairlight mixers correctly (previously it sent a Classic-audio command that Fairlight models ignored)

@@ -1387,12 +1387,13 @@ class AtemAdapter extends utils.Adapter {
             },
             {
                 id: 'remainingDiskSpace',
-                name: 'Remaining Disk Space',
+                name: 'Remaining Recording Time',
                 type: 'number' as const,
-                role: 'value',
+                role: 'value.interval',
                 write: false,
                 read: true,
                 unit: 's',
+                desc: 'Available recording capacity in seconds (not bytes) on the active disk',
             },
         ];
 
@@ -1406,6 +1407,7 @@ class AtemAdapter extends utils.Adapter {
                     read: state.read,
                     write: state.write,
                     unit: state.unit,
+                    desc: state.desc,
                 },
                 native: {},
             });
@@ -1549,12 +1551,12 @@ class AtemAdapter extends utils.Adapter {
                 id: 'run',
                 name: 'Run Macro',
                 type: 'number' as const,
-                role: 'level',
+                role: 'value',
                 write: true,
-                read: true,
+                read: false,
                 min: 0,
                 max: 99,
-                desc: 'Run macro by index (0-99)',
+                desc: 'Run macro by index (0-99); write-only trigger, use macros.runningIndex to read the active macro',
             },
             {
                 id: 'stop',
@@ -1974,21 +1976,24 @@ class AtemAdapter extends utils.Adapter {
             }
         }
 
-        // Audio Follow Video Crossfade (check both Classic and Fairlight)
-        if (this.atem?.state?.audio?.audioFollowVideoCrossfadeTransitionEnabled !== undefined) {
-            await this.setStateAsync(
-                'audio.master.afvCrossfade',
-                this.atem.state.audio.audioFollowVideoCrossfadeTransitionEnabled,
-                true,
-            );
-        }
+        // Audio Follow Video Crossfade (Classic-audio-only state; createAudioStates()
+        // deletes audio.master.afvCrossfade on Fairlight models, so skip the writes there)
+        if (!this.capabilities.hasFairlightAudio) {
+            if (this.atem?.state?.audio?.audioFollowVideoCrossfadeTransitionEnabled !== undefined) {
+                await this.setStateAsync(
+                    'audio.master.afvCrossfade',
+                    this.atem.state.audio.audioFollowVideoCrossfadeTransitionEnabled,
+                    true,
+                );
+            }
 
-        if (this.atem?.state?.fairlight?.audioFollowVideoCrossfadeTransitionEnabled !== undefined) {
-            await this.setStateAsync(
-                'audio.master.afvCrossfade',
-                this.atem.state.fairlight.audioFollowVideoCrossfadeTransitionEnabled,
-                true,
-            );
+            if (this.atem?.state?.fairlight?.audioFollowVideoCrossfadeTransitionEnabled !== undefined) {
+                await this.setStateAsync(
+                    'audio.master.afvCrossfade',
+                    this.atem.state.fairlight.audioFollowVideoCrossfadeTransitionEnabled,
+                    true,
+                );
+            }
         }
 
         // Update monitor states (Classic Audio)
