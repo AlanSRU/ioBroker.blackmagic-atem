@@ -1,29 +1,33 @@
+# Dependabot will run on day 7 of each month at 01:37 (Europe/Berlin timezone)
 version: 2
 updates:
-    - package-ecosystem: npm
-      directory: /
-      schedule:
-          interval: cron
-          cronjob: '17 6 8 * *'
-          timezone: Europe/London
-      open-pull-requests-limit: 15
-      cooldown:
-          default-days: 7
-      ignore:
-          # Keep @types/node aligned with engines.node — major bumps must be manual.
-          - dependency-name: '@types/node'
-            update-types: ['version-update:semver-major']
-          # TypeScript and ESLint majors require config + source migrations.
-          - dependency-name: 'typescript'
-            update-types: ['version-update:semver-major']
-          - dependency-name: 'eslint'
-            update-types: ['version-update:semver-major']
-    - package-ecosystem: github-actions
-      directory: /
-      schedule:
-          interval: cron
-          cronjob: '42 9 22 * *'
-          timezone: Europe/London
-      open-pull-requests-limit: 15
-      cooldown:
-          default-days: 7
+
+  - package-ecosystem: 'npm'
+    directory: '/'
+    schedule:
+      interval: 'cron'
+      cronjob: '17 6 8 * *'
+      timezone: 'Europe/Berlin'
+    open-pull-requests-limit: 15
+    cooldown:
+      default-days: 7
+    ignore:
+      - dependency-name: '@types/node'
+        update-types:
+          - 'version-update:semver-major'
+      - dependency-name: 'typescript'
+        update-types:
+          - 'version-update:semver-major'
+      - dependency-name: 'eslint'
+        update-types:
+          - 'version-update:semver-major'
+
+  - package-ecosystem: 'github-actions'
+    directory: '/'
+    schedule:
+      interval: 'cron'
+      cronjob: '42 9 22 * *'
+      timezone: 'Europe/Berlin'
+    open-pull-requests-limit: 15
+    cooldown:
+      default-days: 7
