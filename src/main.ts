@@ -452,6 +452,16 @@ class AtemAdapter extends utils.Adapter {
     private atem: Atem | null = null;
     private reconnectTimeout: ioBroker.Timeout | undefined = undefined;
     private isConnecting = false;
+    /**
+     * False while building from placeholder `auto` capabilities before the device is known:
+     * deleting "unsupported" objects then would remove real ones (and their history/custom
+     * settings) on every start for models the placeholder doesn't match.
+     */
+    private pruneOrphans = true;
+    /** Set at the top of onUnload so late library events and async work stop writing */
+    private unloaded = false;
+    /** Object ids already written by ensureObject since the last state-structure build */
+    private ensuredObjects = new Set<string>();
     private capabilities: ModelCapabilities = MODEL_CAPABILITIES.auto;
 
     public constructor(options: Partial<utils.AdapterOptions> = {}) {
@@ -492,7 +502,8 @@ class AtemAdapter extends utils.Adapter {
         // Create base state structure
         try {
             this.log.info('Creating state structure...');
-            await this.createStateStructure();
+            // With auto-detect, only add objects now; prune after the device reports its model
+            await this.createStateStructure(this.config.model !== 'auto');
             this.log.info('State structure created successfully');
         } catch (error) {
             this.log.error(`Failed to create state structure: ${(error as Error).message}`);
@@ -505,10 +516,18 @@ class AtemAdapter extends utils.Adapter {
 
     /**
      * Create the state structure for all ATEM features
+     *
+     * @param pruneOrphans Whether to delete objects the current capabilities don't support
      */
-    private async createStateStructure(): Promise<void> {
+    private async createStateStructure(pruneOrphans = true): Promise<void> {
+        // Re-apply every object definition on each (re)build, e.g. after model detection
+        this.ensuredObjects.clear();
+        this.pruneOrphans = pruneOrphans;
+
         // Clean up states that don't match current model capabilities
-        await this.cleanupOrphanedStates();
+        if (pruneOrphans) {
+            await this.cleanupOrphanedStates();
+        }
 
         // Device info channel
         await this.createDeviceInfoStates();
@@ -652,6 +671,9 @@ class AtemAdapter extends utils.Adapter {
      * @param objectId Relative object id (without namespace) whose subtree should be removed
      */
     private async deleteObjectWithChildren(objectId: string): Promise<void> {
+        if (!this.pruneOrphans) {
+            return;
+        }
         try {
             // Get all objects under this ID
             const objects = await this.getObjectListAsync({
@@ -680,18 +702,33 @@ class AtemAdapter extends utils.Adapter {
     }
 
     /**
-     * Wrapper around setObjectNotExistsAsync that guarantees every created state
-     * declares a type-appropriate `def` default (boolean→false, number→0, else '')
-     * when the caller does not supply one. Non-state objects pass through unchanged.
+     * Wrapper around extendObject that guarantees every created state declares a
+     * type-appropriate `def` default (boolean→false, number→0 clamped into
+     * [min, max], else '') when the caller does not supply one.
+     *
+     * extendObject creates the object when missing and merges `common` when present,
+     * so metadata changes (role, name, min/max, desc) also reach upgraded instances,
+     * while user-owned `common.custom` (history etc.) is preserved.
+     *
+     * Each id is written once per state-structure build, so calls from the live
+     * update paths (inputs, audio inputs) don't rewrite objects on every packet.
      *
      * @param id  Object ID (relative to the adapter namespace).
-     * @param obj Settable object definition to create if it does not yet exist.
+     * @param obj Settable object definition to create or update.
      */
     private async ensureObject(id: string, obj: ioBroker.SettableObject): Promise<void> {
-        if (obj.type === 'state' && obj.common.def === undefined) {
-            obj.common.def = obj.common.type === 'boolean' ? false : obj.common.type === 'number' ? 0 : '';
+        if (this.ensuredObjects.has(id)) {
+            return;
         }
-        await this.setObjectNotExistsAsync(id, obj);
+        if (obj.type === 'state' && obj.common.def === undefined) {
+            if (obj.common.type === 'number') {
+                obj.common.def = Math.min(Math.max(0, obj.common.min ?? 0), obj.common.max ?? Infinity);
+            } else {
+                obj.common.def = obj.common.type === 'boolean' ? false : '';
+            }
+        }
+        await this.extendObject(id, obj);
+        this.ensuredObjects.add(id);
     }
 
     private async createDeviceInfoStates(): Promise<void> {
@@ -702,8 +739,8 @@ class AtemAdapter extends utils.Adapter {
         });
 
         const deviceStates = [
-            { id: 'modelName', name: 'Model Name', type: 'string' as const, role: 'info.name' },
-            { id: 'productId', name: 'Product ID', type: 'string' as const, role: 'info.serial' },
+            { id: 'modelName', name: 'Model Name', type: 'string' as const, role: 'info.model' },
+            { id: 'productId', name: 'Model ID', type: 'string' as const, role: 'text' },
             { id: 'videoMode', name: 'Video Mode', type: 'string' as const, role: 'text' },
             { id: 'configuredModel', name: 'Configured Model', type: 'string' as const, role: 'text' },
             { id: 'capabilities', name: 'Active Capabilities', type: 'string' as const, role: 'json' },
@@ -1252,9 +1289,7 @@ class AtemAdapter extends utils.Adapter {
         ];
 
         for (const state of cgStates) {
-            // setObjectAsync (not ensureObject) to force-refresh min/max on upgrade,
-            // so def must be supplied explicitly here.
-            await this.setObjectAsync(`${cgId}.${state.id}`, {
+            await this.ensureObject(`${cgId}.${state.id}`, {
                 type: 'state',
                 common: {
                     name: state.name,
@@ -1444,8 +1479,8 @@ class AtemAdapter extends utils.Adapter {
             native: {},
         });
 
-        // Still index with proper max based on model
-        await this.setObjectAsync(`${mpId}.stillIndex`, {
+        // Still index with proper max based on model (ensureObject refreshes max on upgrade)
+        await this.ensureObject(`${mpId}.stillIndex`, {
             type: 'state',
             common: {
                 name: 'Still Index',
@@ -1462,7 +1497,7 @@ class AtemAdapter extends utils.Adapter {
 
         // Only create clip states if model supports clips, otherwise delete any existing clipIndex
         if (this.capabilities.mediaClips > 0) {
-            await this.setObjectAsync(`${mpId}.clipIndex`, {
+            await this.ensureObject(`${mpId}.clipIndex`, {
                 type: 'state',
                 common: {
                     name: 'Clip Index',
@@ -1551,7 +1586,7 @@ class AtemAdapter extends utils.Adapter {
                 id: 'run',
                 name: 'Run Macro',
                 type: 'number' as const,
-                role: 'value',
+                role: 'level',
                 write: true,
                 read: false,
                 min: 0,
@@ -1682,7 +1717,7 @@ class AtemAdapter extends utils.Adapter {
      * Connect to the ATEM device
      */
     private async connectAtem(): Promise<void> {
-        if (this.isConnecting) {
+        if (this.isConnecting || this.unloaded) {
             return;
         }
 
@@ -1692,6 +1727,9 @@ class AtemAdapter extends utils.Adapter {
             this.atem = new Atem();
 
             this.atem.on('connected', async () => {
+                if (this.unloaded) {
+                    return;
+                }
                 this.log.info('Connected to ATEM');
                 this.isConnecting = false;
                 await this.setStateAsync('info.connection', true, true);
@@ -1706,12 +1744,21 @@ class AtemAdapter extends utils.Adapter {
                     this.log.info('State structure rebuilt successfully');
                 }
 
+                if (this.unloaded) {
+                    return;
+                }
                 await this.updateAllStates();
             });
 
             this.atem.on('disconnected', () => {
+                if (this.unloaded) {
+                    return;
+                }
                 this.log.warn('Disconnected from ATEM');
                 void this.setStateAsync('info.connection', false, true);
+                // Release this instance (it would otherwise keep retrying on its own) and
+                // reconnect with a fresh one after the configured interval
+                void this.releaseAtem();
                 this.scheduleReconnect();
             });
 
@@ -1719,8 +1766,11 @@ class AtemAdapter extends utils.Adapter {
                 this.log.error(`ATEM error: ${error}`);
             });
 
-            this.atem.on('stateChanged', (_state, pathToChange: string[]) => {
-                this.handleStateChanged(pathToChange);
+            this.atem.on('stateChanged', (_state, changedPaths: string[]) => {
+                if (this.unloaded) {
+                    return;
+                }
+                this.handleStateChanged(changedPaths);
             });
 
             this.atem.on('info', (info: string) => {
@@ -1732,7 +1782,25 @@ class AtemAdapter extends utils.Adapter {
         } catch (error) {
             this.isConnecting = false;
             this.log.error(`Failed to connect to ATEM: ${(error as Error).message}`);
+            await this.releaseAtem();
             this.scheduleReconnect();
+        }
+    }
+
+    /**
+     * Detach and destroy the current Atem instance (UDP socket, worker thread, retry timer)
+     */
+    private async releaseAtem(): Promise<void> {
+        const atem = this.atem;
+        if (!atem) {
+            return;
+        }
+        this.atem = null;
+        atem.removeAllListeners();
+        try {
+            await atem.destroy();
+        } catch (error) {
+            this.log.debug(`Error destroying ATEM connection: ${(error as Error).message}`);
         }
     }
 
@@ -1768,6 +1836,9 @@ class AtemAdapter extends utils.Adapter {
     }
 
     private scheduleReconnect(): void {
+        if (this.unloaded) {
+            return;
+        }
         if (this.reconnectTimeout) {
             this.clearTimeout(this.reconnectTimeout);
         }
@@ -1797,8 +1868,8 @@ class AtemAdapter extends utils.Adapter {
 
         // Device info
         if (state.info) {
-            await this.setStateAsync('device.modelName', state.info.model?.toString() || 'Unknown', true);
-            await this.setStateAsync('device.productId', state.info.productIdentifier || 'Unknown', true);
+            await this.setStateAsync('device.modelName', state.info.productIdentifier || 'Unknown', true);
+            await this.setStateAsync('device.productId', state.info.model?.toString() || 'Unknown', true);
         }
 
         // Video mode
@@ -2242,38 +2313,56 @@ class AtemAdapter extends utils.Adapter {
     /**
      * Handle ATEM state changes
      *
-     * @param pathToChange Path segments of the ATEM state that changed
+     * @param changedPaths Full dotted paths of every ATEM state property that changed
+     *                     (e.g. `video.mixEffects.1.programInput`); one packet can carry several
      */
-    private handleStateChanged(pathToChange: string[]): void {
-        const path = pathToChange.join('.');
-        this.log.debug(`ATEM state changed: ${path}`);
+    private handleStateChanged(changedPaths: string[]): void {
+        this.log.debug(`ATEM state changed: ${changedPaths.join(', ')}`);
 
-        // Update specific states based on path
-        if (path.startsWith('video.mixEffects.')) {
-            const meIndex = parseInt(pathToChange[2]) || 0;
+        // Collect the affected areas first so each updater runs at most once per packet
+        const updaters = new Set<() => Promise<void>>();
+        const meIndices = new Set<number>();
+        let videoChanged = false;
+
+        for (const path of changedPaths) {
+            if (path.startsWith('video')) {
+                videoChanged = true;
+            }
+
+            if (path.startsWith('video.mixEffects.')) {
+                meIndices.add(parseInt(path.split('.')[2]) || 0);
+            } else if (path.startsWith('video.downstreamKeyers')) {
+                updaters.add(this.updateDSKStates);
+            } else if (path.startsWith('video.auxilliaries')) {
+                updaters.add(this.updateAuxStates);
+            } else if (path.startsWith('audio.channels')) {
+                updaters.add(this.updateAudioInputStates);
+            } else if (path.startsWith('audio') || path.startsWith('fairlight')) {
+                updaters.add(this.updateAudioStates);
+            } else if (path.startsWith('colorGenerators')) {
+                updaters.add(this.updateColorGeneratorStates);
+            } else if (path.startsWith('streaming')) {
+                updaters.add(this.updateStreamingStates);
+            } else if (path.startsWith('recording')) {
+                updaters.add(this.updateRecordingStates);
+            } else if (path.startsWith('media.players')) {
+                updaters.add(this.updateMediaPlayerStates);
+            } else if (path.startsWith('macro')) {
+                updaters.add(this.updateMacroStates);
+            } else if (path.startsWith('inputs')) {
+                updaters.add(this.updateInputStates);
+            }
+        }
+
+        for (const meIndex of meIndices) {
             void this.updateMixEffectStates(meIndex);
-        } else if (path.startsWith('video.downstreamKeyers')) {
-            void this.updateDSKStates();
-        } else if (path.startsWith('video.auxilliaries')) {
-            void this.updateAuxStates();
-        } else if (path.startsWith('audio') || path.startsWith('fairlight')) {
-            void this.updateAudioStates();
-        } else if (path.startsWith('colorGenerators')) {
-            void this.updateColorGeneratorStates();
-        } else if (path.startsWith('streaming')) {
-            void this.updateStreamingStates();
-        } else if (path.startsWith('recording')) {
-            void this.updateRecordingStates();
-        } else if (path.startsWith('media.players')) {
-            void this.updateMediaPlayerStates();
-        } else if (path.startsWith('macro')) {
-            void this.updateMacroStates();
-        } else if (path.startsWith('inputs')) {
-            void this.updateInputStates();
+        }
+        for (const update of updaters) {
+            void update.call(this);
         }
 
         // Always update tally on video changes
-        if (path.startsWith('video')) {
+        if (videoChanged) {
             void this.updateTallyStates();
         }
     }
@@ -2650,16 +2739,14 @@ class AtemAdapter extends utils.Adapter {
      * @param callback Must be invoked once cleanup is complete to signal shutdown
      */
     private onUnload(callback: () => void): void {
+        this.unloaded = true;
         try {
             if (this.reconnectTimeout) {
                 this.clearTimeout(this.reconnectTimeout);
                 this.reconnectTimeout = undefined;
             }
 
-            if (this.atem) {
-                void this.atem.disconnect();
-                this.atem = null;
-            }
+            void this.releaseAtem();
 
             callback();
         } catch {
