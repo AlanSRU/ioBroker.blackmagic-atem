@@ -35,7 +35,7 @@ This adapter controls [Blackmagic Design ATEM](https://www.blackmagicdesign.com/
 ## Requirements
 
 - js-controller >= 6.0.11
-- ioBroker Admin >= 7.6.20
+- ioBroker Admin >= 7.8.23
 - Node.js >= 22
 - Blackmagic ATEM switcher with network connectivity
 
@@ -123,6 +123,13 @@ The ATEM protocol has no authentication — keep ATEM devices on a trusted, priv
     ### __WORK IN PROGRESS__
 -->
 ### __WORK IN PROGRESS__
+- (Alan Paris) Fixed live updates on 2 M/E and 4 M/E switchers: changes to M/E 2-4 (program, preview, keyers, transitions) were not reflected until the next reconnect
+- (Alan Paris) Fixed live updates when one packet changes several areas at once, and classic-audio input gain/balance/mix option now update live
+- (Alan Paris) Fixed a connection leak: each network drop left the previous ATEM connection running, taking an extra switcher session
+- (Alan Paris) Object definitions (roles, names, ranges) are now updated on existing installations, not only on fresh installs
+- (Alan Paris) With model auto-detect, restarting the adapter no longer deletes states (and their history settings) that the connected model supports, e.g. M/E 2-4 or classic-audio monitor states
+- (Alan Paris) device.modelName now shows the product name (e.g. "ATEM Mini Pro") and device.productId the numeric model ID; previously they were swapped
+- (Alan Paris) Transition and fade-to-black rate states no longer default to 0, below their minimum of 1
 - (Alan Paris) Adapter now requires admin >= 7.8.23
 - (Alan Paris) Node.js 26 added to the test matrix
 - (Alan Paris) Updated dependencies (@iobroker/adapter-core 3.4.3, @iobroker/testing 6.2.2)
